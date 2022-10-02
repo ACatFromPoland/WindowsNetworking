@@ -18,7 +18,6 @@ void Server_World(Message& msg)
 	for (int i = 0; i < maxPlayerCount; i++)
 	{
 		players[i].active = p->active[i];
-
 		players[i].x = p->pos[2 * i];
 		players[i].y = p->pos[2 * i + 1];
 	}

@@ -32,6 +32,7 @@ int addPlayer(sockaddr_in& address)
 			continue;
 
 		player.active = true;
+		player.client = address;
 		player.x = 400.0f;
 		player.y = 400.0f;
 		return i;

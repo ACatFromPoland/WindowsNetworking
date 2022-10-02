@@ -1,6 +1,5 @@
 #include "ServerNet.h"
 #include <time.h>
-
 int main()
 {
 	ANetwork::Setup();

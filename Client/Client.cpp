@@ -22,6 +22,7 @@ int main()
 	FormatMessageData(toSend);
 
 	ConnectPacket connect{};
+	printf("Give me your name... and soul..\n");
 	std::string name;
 	std::cin >> name;
 	strncpy_s(connect.name, name.c_str(), sizeof(connect.name));
@@ -70,7 +71,7 @@ int main()
 	std::thread networkThread(NetworkThread);
 	
 
-
+	bool focused = true;
 	// SFML GRAPHICS
 	while (window.isOpen())
 	{
@@ -79,6 +80,10 @@ int main()
 		{
 			if (event.type == sf::Event::Closed)
 				window.close();
+			else if (event.type == sf::Event::GainedFocus)
+				focused = true;
+			else if (event.type == sf::Event::LostFocus)
+				focused = false;
 		}
 		window.clear(sf::Color(146, 146, 144));
 
@@ -91,7 +96,7 @@ int main()
 		ANetwork::threadLock.unlock();
 
 
-		if (clock.Tick())
+		if (clock.Tick() && focused)
 		{
 			// ... Send Client Data(Inputs...)
 			FormatMessageData(toSend);
@@ -110,10 +115,12 @@ int main()
 		}
 		
 		// TODO: Render Player
+		// PLACE HOLDER PLAYER RENDERING
 		sf::CircleShape player;
+		
 		player.setFillColor(sf::Color::Red);
 		player.setRadius(15.0f);
-		
+
 		for (int i = 0; i < maxPlayerCount; i++)
 		{
 			Player& cplayer = players[i];
