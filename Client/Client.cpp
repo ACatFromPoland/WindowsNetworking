@@ -32,7 +32,7 @@ int main()
 
 
 	// ... Wait For Server Response
-	if (Recv(toRecv, serverAuth))
+	if (!Recv(toRecv, serverAuth))
 	{
 		printf("Response Failed!\n");
 		system("pause");
@@ -43,7 +43,7 @@ int main()
 
 
 	// ... Wait for Server Data
-	if (Recv(toRecv, serverAuth))
+	if (!Recv(toRecv, serverAuth))
 	{
 		printf("Connection Failed!\n");
 		system("pause");
@@ -85,13 +85,9 @@ int main()
 
 		// ... Recieve Server Updates
 		ANetwork::threadLock.lock();
-		for (int i = (int)counter - 1; i >= 0; i--)
-		{
-			QueueElement& q = packetQueue[i];
+		for (QueueElement& q : packetQueue)
 			HandleMessage(q.msg);
-
-			counter--;
-		}
+		packetQueue.purge();
 		ANetwork::threadLock.unlock();
 
 

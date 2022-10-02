@@ -6,18 +6,15 @@ class Message : public DynamicArray<byte>
 {
 public:
 	byte* iter;
-	int bytes;
 
 	Message() : DynamicArray()
 	{
 		iter = nullptr;
-		bytes = 0;
 	}
 
 	Message(size_t t) : DynamicArray(t)
 	{
 		iter = nullptr;
-		bytes = 0;
 	}
 
 	void beginFetch()

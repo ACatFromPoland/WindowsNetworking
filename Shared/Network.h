@@ -22,14 +22,13 @@ bool Recv(Message& msg, sockaddr_in& address)
 	byte* buf = ANetwork::Recv(address, bytes);
 	if (!buf)
 	{
-		return true;
+		return false;
 	}
 	msg.clear();
 	msg.pushBack(buf, bytes);
-	msg.bytes = bytes;
 
 	free(buf);
-	return false;
+	return true;
 }
 
 void FormatMessageData(Message& msg)
@@ -56,10 +55,7 @@ struct QueueElement
 	sockaddr_in address;
 };
 
-//DynamicArray<QueueElement> packetQueue;
-
-static QueueElement packetQueue[16];
-static int counter = 0;
+DynamicArray<QueueElement> packetQueue;
 
 void NetworkThread()
 {
@@ -67,23 +63,16 @@ void NetworkThread()
 	{
 		QueueElement element;
 
-		if (Recv(element.msg, element.address))
+		if (!Recv(element.msg, element.address))
 			continue;
-		
+
 		ANetwork::threadLock.lock();
 
-		QueueElement& ref = packetQueue[counter];
-		ref.msg.Copy(element.msg);
-		ref.msg.bytes = element.msg.bytes;
-		ref.address = element.address;
+		QueueElement& newElm = packetQueue.pushBack();
 
-		counter++;
-
-		//QueueElement& newElm = packetQueue.pushBack();
-
-		//newElm.msg.Copy(element.msg);
-		//newElm.msg.bytes = element.msg.bytes;
-		//newElm.address = element.address;
+		newElm.msg.copy(element.msg);
+		newElm.msg.iter = nullptr;
+		newElm.address = element.address;
 
 		ANetwork::threadLock.unlock();
 	}

@@ -7,6 +7,7 @@ int main()
 	ANetwork::Bind(5006);
 
 	NetClock clock(66.0f);
+
 	std::thread networkThread(NetworkThread);
 
 	// Setup Server
@@ -38,30 +39,12 @@ int main()
 				Send(toSend, player.client);
 			}
 		}
-		
-		/*
-		Message toRecv;
-		sockaddr_in client;
-
-		if (Recv(toRecv, client))
-			continue;
-
-		QueueElement& newElm = packetQueue.pushBack();
-
-		newElm.msg.Copy(element.msg);
-		newElm.msg.bytes = element.msg.bytes;
-		newElm.address = element.address;
-		*/
 
 		// Handle Client Packet
 		ANetwork::threadLock.lock();
-		for (int i = (int)counter - 1; i >= 0; i--)
-		{
-			QueueElement& q = packetQueue[i];
+		for (QueueElement& q : packetQueue)
 			HandleMessage(q.msg, q.address);
-
-			counter--;
-		}
+		packetQueue.purge();
 		ANetwork::threadLock.unlock();
 	}
 
