@@ -22,7 +22,7 @@
     <ClInclude Include="ServerNet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Player.h">
+    <ClInclude Include="SPlayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

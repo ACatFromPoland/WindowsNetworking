@@ -13,6 +13,7 @@ enum PacketType : byte {
 struct StarterPacket
 {
 	int ID;
+	// TODO: use checksum
 	int checkSum;
 };
 
@@ -23,7 +24,6 @@ struct HeaderPacket
 
 struct ResponsePacket
 {
-	// TODO use checksum
 	int bytes;
 };
 
@@ -44,8 +44,9 @@ struct InputPacket
 	bool input[4];
 };
 
+// TODO: Make World Packet Dynamic size
 struct WorldPacket
 {
-	int ids[8];
-	float pos[16];
+	bool active[8];
+	float pos[8 * 2];
 };

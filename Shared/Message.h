@@ -25,7 +25,6 @@ public:
 		iter = memory;
 	}
 
-	// templating
 	template <class T>
 	T* fetch()
 	{

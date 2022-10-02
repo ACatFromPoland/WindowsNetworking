@@ -150,6 +150,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ClientNet.h" />
+    <ClInclude Include="CPlayer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

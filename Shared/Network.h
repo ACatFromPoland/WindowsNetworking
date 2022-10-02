@@ -49,6 +49,7 @@ void AddPacket(Message& msg, PacketType type, T& data)
 }
 
 
+// TODO: FIX PROBLEMS PLEASSEE
 struct QueueElement
 {
 	Message msg;
@@ -56,39 +57,34 @@ struct QueueElement
 };
 
 //DynamicArray<QueueElement> packetQueue;
-//int packetsRecieved;
-Message msgBuffer;
-sockaddr_in addrBuffer;
-bool ready;
+
+static QueueElement packetQueue[16];
+static int counter = 0;
+
 void NetworkThread()
 {
-	ready = false;
-
-	while (true)
-	{
-		if (Recv(msgBuffer, addrBuffer))
-			continue;
-		ANetwork::threadLock.lock();
-		ready = true;
-		ANetwork::threadLock.unlock();
-	}
-	/*
-	packetsRecieved = 0;
-
 	while (true)
 	{
 		QueueElement element;
-		Recv(element.msg, element.address);
-		packetsRecieved++;
-		printf("%llu - %llu / %llu     %d\n", element.msg.count, packetQueue.count, packetsRecieved, element.msg.memory[0]);
 
-		Network::threadLock.lock();
+		if (Recv(element.msg, element.address))
+			continue;
 		
-		QueueElement& newElm = packetQueue.pushBack();
-		newElm.msg.Copy(element.msg);
-		newElm.address = element.address;
+		ANetwork::threadLock.lock();
 
-		Network::threadLock.unlock();
+		QueueElement& ref = packetQueue[counter];
+		ref.msg.Copy(element.msg);
+		ref.msg.bytes = element.msg.bytes;
+		ref.address = element.address;
+
+		counter++;
+
+		//QueueElement& newElm = packetQueue.pushBack();
+
+		//newElm.msg.Copy(element.msg);
+		//newElm.msg.bytes = element.msg.bytes;
+		//newElm.address = element.address;
+
+		ANetwork::threadLock.unlock();
 	}
-	*/
 }

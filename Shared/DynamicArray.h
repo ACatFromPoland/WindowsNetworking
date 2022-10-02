@@ -24,17 +24,16 @@ public:
 	~DynamicArray()
 	{
 		free(memory);
+		//printf("freed %p\n", memory);
 	}
 
-	//TODO Swap copy order
 	void Copy(DynamicArray& dynamic1)
 	{
 		count = dynamic1.count;
 		memorySize = dynamic1.memorySize;
 		//
 		memory = (T*)malloc(dynamic1.memorySize * sizeof(T));
-		if (!memory)
-			printf("NULL!");
+		//printf("copy %p -> %p\n", dynamic1.memory, memory);
 		memcpy(memory, dynamic1.memory, memorySize * sizeof(T));
 	}
 
@@ -43,14 +42,15 @@ public:
 		count = c;
 		memorySize = roundUpToMultipleOfTwo(count);
 		memory = (T*)malloc(memorySize * sizeof(T));
-		if (!memory)
-			printf("NULL!");
+		//printf("setSize %p\n", memory);
 	}
 
-	void popBack() 
+	void popBack()
 	{
+		memory[count - 1].~T();
+
+		//(memory[count - 1])->~T();
 		count--;
-		if (count < 0) count = 0;
 	}
 
 	void tryExpandMem()
@@ -58,13 +58,15 @@ public:
 		if (count > memorySize)
 		{
 			memorySize = roundUpToMultipleOfTwo(count);
-			memory = (T*)realloc(memory, memorySize);
+			T* temp = (T*)realloc(memory, memorySize);
+			//printf("tryExpandMem %p - %p\n", memory, temp);
+			memory = temp;
 		}
 	}
 
 	T& pushBack()
 	{
-		count += sizeof(T);
+		count++;
 		tryExpandMem();
 		return memory[count - 1];
 	}

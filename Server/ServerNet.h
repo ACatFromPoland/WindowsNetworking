@@ -1,6 +1,6 @@
 #pragma once
 #include "Network.h"
-#include "Player.h"
+#include "SPlayer.h"
 
 void Client_Connect(Message& msg, sockaddr_in& address)
 {

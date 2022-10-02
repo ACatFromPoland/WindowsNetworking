@@ -54,6 +54,7 @@ byte* ANetwork::Recv(sockaddr_in& address, int& bytesRecieved)
 	
 	if (bytesRecieved == -1)
 	{
+		printf("%d\n", bytesRecieved);
 		printf("[ERROR] %d\n", WSAGetLastError());
 		system("pause");
 		return nullptr;

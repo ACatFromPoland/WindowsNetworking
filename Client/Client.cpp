@@ -2,8 +2,8 @@
 #include "ClientNet.h"
 #include <iostream>
 
+// Allow User to choose where to connect
 void GetConnectionInfo(sockaddr_in& serverAddr);
-
 
 int main()
 {
@@ -64,9 +64,13 @@ int main()
 
 
 	// ... Now Connected, Start Game Loop
-	std::thread networkThread(NetworkThread);
-	NetClock clock(66.0f);
 	sf::RenderWindow window(sf::VideoMode(800, 800), "SFML works!");
+	
+	NetClock clock(66.0f);
+	std::thread networkThread(NetworkThread);
+	
+
+
 	// SFML GRAPHICS
 	while (window.isOpen())
 	{
@@ -79,31 +83,25 @@ int main()
 		window.clear(sf::Color(146, 146, 144));
 
 
-		// ... Wait for World/Server Updates
+		// ... Recieve Server Updates
 		ANetwork::threadLock.lock();
-		if (ready)
-		{
-			HandleMessage(msgBuffer);
-			ready = false;
-		}
-		/*
-		for (int i = packetQueue.count - 1; i >= 0; i--)
+		for (int i = (int)counter - 1; i >= 0; i--)
 		{
 			QueueElement& q = packetQueue[i];
 			HandleMessage(q.msg);
-			packetQueue.popBack();
+
+			counter--;
 		}
-		*/
 		ANetwork::threadLock.unlock();
 
 
 		if (clock.Tick())
 		{
-			// ... Send Player Data(Inputs...)
+			// ... Send Client Data(Inputs...)
 			FormatMessageData(toSend);
 
 			InputPacket inputs;
-			inputs.ID = client.id;
+			inputs.ID = LocalClient.id;
 
 			inputs.input[0] = sf::Keyboard::isKeyPressed(sf::Keyboard::W);
 			inputs.input[1] = sf::Keyboard::isKeyPressed(sf::Keyboard::A);
@@ -116,7 +114,19 @@ int main()
 		}
 		
 		// TODO: Render Player
+		sf::CircleShape player;
+		player.setFillColor(sf::Color::Red);
+		player.setRadius(15.0f);
 		
+		for (int i = 0; i < maxPlayerCount; i++)
+		{
+			Player& cplayer = players[i];
+			if (!cplayer.active)
+				continue;
+
+			player.setPosition(sf::Vector2f(cplayer.x, cplayer.y));
+			window.draw(player);
+		}
 
 		window.display();
 	}

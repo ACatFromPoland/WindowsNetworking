@@ -145,8 +145,8 @@
     <ClCompile Include="Server.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Player.h" />
     <ClInclude Include="ServerNet.h" />
+    <ClInclude Include="SPlayer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
