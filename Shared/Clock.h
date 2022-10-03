@@ -1,40 +1,46 @@
 #pragma once
-#include <time.h>
+#include <profileapi.h>
 
+// TODO: REPLACE TIME GET TIME
 class NetClock
 {
 public:
 	NetClock()
 	{
-		clock_t currentTick = clock();
-		clock_t lastTick = currentTick;
-		time = 0.0f;
-		period = 1;
+		Restart();
+		period = 1000000.0f;
 	}
+
 	NetClock(double ticksPerSecond)
 	{
-		clock_t currentTick = clock();
-		clock_t lastTick = currentTick;
-		time = 0.0f;
-		period = 1.0f / ticksPerSecond;
+		Restart();
+		period = (1.0f / ticksPerSecond) * 1000000.0f;
+	}
+
+	void Restart()
+	{
+		QueryPerformanceCounter(&ticks);
+		lastTicks = ticks;
+		timeus = 0.0f;
 	}
 
 	bool Tick()
 	{
-		currentTick = clock();
-		time += (double)(currentTick - lastTick);
-		lastTick = currentTick;
-		if (time > (double)(0.015 * CLOCKS_PER_SEC))
+		QueryPerformanceCounter(&ticks);
+		timeus += (double)(ticks.QuadPart - lastTicks.QuadPart);
+		lastTicks = ticks;
+
+		if (timeus > period)
 		{
-			time -= (double)(0.015 * CLOCKS_PER_SEC);
+			timeus -= period;
 			return true;
 		}
 		return false;
 	}
 
 private:
-	clock_t currentTick;
-	clock_t lastTick;
-	double time;
+	LARGE_INTEGER ticks;
+	LARGE_INTEGER lastTicks;
+	double timeus;
 	double period;
 };

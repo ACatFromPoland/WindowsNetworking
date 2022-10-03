@@ -17,7 +17,7 @@ int main()
 		// Handle Server Updates
 		if (clock.Tick())
 		{
-			WorldPacket data;
+			WorldPacket data{};
 			for (int i = 0; i < maxPlayerCount; i++)
 			{
 				data.active[i] = players[i].active;

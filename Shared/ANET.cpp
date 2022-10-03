@@ -29,7 +29,7 @@ void ANetwork::GetIPAddress(sockaddr_in& address, char* ip)
 
 void ANetwork::Bind(u_short port)
 {
-	ANetwork::sock = socket(AF_INET, SOCK_DGRAM, 0);
+	ANetwork::sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	ANetwork::local.sin_addr.S_un.S_addr = ADDR_ANY;
 	ANetwork::local.sin_family = AF_INET;
 

@@ -13,6 +13,9 @@ int main()
 	Message toSend;
 	sockaddr_in serverAddr;
 	GetConnectionInfo(serverAddr);
+	printf("How many ticks per second?\n");
+	float ticksPerSecond;
+	std::cin >> ticksPerSecond;
 
 	Message toRecv;
 	sockaddr_in serverAuth;
@@ -62,12 +65,10 @@ int main()
 
 	Send(toSend, serverAddr);
 
-
-
 	// ... Now Connected, Start Game Loop
 	sf::RenderWindow window(sf::VideoMode(800, 800), "SFML works!");
 	
-	NetClock clock(66.0f);
+	NetClock clock(ticksPerSecond);
 	std::thread networkThread(NetworkThread);
 	
 
@@ -108,7 +109,7 @@ int main()
 			inputs.input[1] = sf::Keyboard::isKeyPressed(sf::Keyboard::A);
 			inputs.input[2] = sf::Keyboard::isKeyPressed(sf::Keyboard::S);
 			inputs.input[3] = sf::Keyboard::isKeyPressed(sf::Keyboard::D);
-
+			
 			AddPacket<InputPacket>(toSend, PacketType::CLIENT_INPUT, inputs);
 
 			Send(toSend, serverAddr);

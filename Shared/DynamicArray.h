@@ -24,7 +24,7 @@ public:
 	~DynamicArray()
 	{
 		purge();
-		free(memory);
+		//free(memory);
 	}
 
 	void copy(DynamicArray& dynamic1)
@@ -94,8 +94,10 @@ public:
 	{
 		for (int i = 0; i < count; i++)
 			memory[i].~T();
-		memorySize = 0;
 		count = 0;
+		memorySize = 0;
+		free(memory);
+		memory = nullptr;
 	}
 
 	// Ops overloads
