@@ -10,7 +10,7 @@ int main()
 	std::thread networkThread(NetworkThread);
 
 	// Setup Server
-
+	// Branch test
 	while (true)
 	{
 		// TODO: Update all clients with player positions
