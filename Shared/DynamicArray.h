@@ -24,6 +24,7 @@ public:
 	~DynamicArray()
 	{
 		purge();
+		free(memory);
 	}
 
 	void copy(DynamicArray& dynamic1)
@@ -52,8 +53,7 @@ public:
 		if (count > memorySize)
 		{
 			memorySize = roundUpToMultipleOfTwo(count);
-			T* temp = (T*)realloc(memory, memorySize * sizeof(T));
-			memory = temp;
+			memory = (T*)realloc(memory, memorySize * sizeof(T));
 		}
 	}
 
@@ -94,7 +94,6 @@ public:
 	{
 		for (int i = 0; i < count; i++)
 			memory[i].~T();
-		memory = nullptr;
 		memorySize = 0;
 		count = 0;
 	}
