@@ -3,6 +3,12 @@
 #include "CPlayer.h"
 #include "SFML/Graphics.hpp"
 
+void NetThreadError(sockaddr_in& address)
+{
+	// Figure Stuff Out :(
+	// TODO: 
+}
+
 // TODO: Handle Given Player Count
 void Server_Data(Message& msg)
 {

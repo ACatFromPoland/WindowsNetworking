@@ -2,6 +2,13 @@
 #include "Network.h"
 #include "SPlayer.h"
 
+void NetThreadError(sockaddr_in& address)
+{
+
+	// Remove Player if (?)
+
+}
+
 void Client_Connect(Message& msg, sockaddr_in& address)
 {
 	// Recieve 

@@ -40,6 +40,26 @@ int addPlayer(sockaddr_in& address)
 	return -1;
 }
 
+void removePlayer(sockaddr_in& address)
+{
+	for (int i = 0; i < maxPlayerCount; i++)
+	{
+		Player& player = players[i]; 
+
+		if (!player.active)
+			continue;
+
+		if (memcmp(&address, &player.client, sizeof(address)))
+			continue;
+
+		char ip[16];
+		ANetwork::GetIPAddress(address, ip);
+		printf("[CLIENT DISCONNECTED] NAME: %s  IP: %s:%d\n", "?????", ip, (int)address.sin_port);
+		
+		player.active = false;
+	}
+}
+
 void movePlayer(int id, bool inputs[])
 {
 	Player& player = players[id];

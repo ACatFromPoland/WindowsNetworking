@@ -1,9 +1,12 @@
 #pragma once
 #include "Utils.h"
 
-#include <WS2tcpip.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+
 #include <mutex>
 #include <thread>
+
 #pragma comment (lib, "ws2_32.lib")
 
 #define PACKET_MAX_SIZE 140
@@ -17,6 +20,7 @@ public:
 	static SOCKET sock;
 	static sockaddr_in local;
 	static std::mutex threadLock;
+	static WSADATA wsaData;
 
 	// Setups the Windows Socket API
 	static void Setup();

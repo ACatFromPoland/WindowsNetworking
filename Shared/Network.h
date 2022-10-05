@@ -3,10 +3,15 @@
 #include "Message.h"
 #include "NetStruct.h"
 #include "Clock.h"
+#include <cassert>
 
 // 
 // Network.h is a interface for the ANET, Message and NetStruct Headers
 //
+
+typedef void (*NetworkThreadCallback)(sockaddr_in&);
+
+NetworkThreadCallback pNetThreadCallBack = nullptr;
 
 void Send(Message& msg, sockaddr_in& address)
 {
@@ -56,6 +61,7 @@ struct QueueElement
 };
 
 DynamicArray<QueueElement> packetQueue;
+std::thread networkThread;
 
 void NetworkThread()
 {
@@ -64,7 +70,10 @@ void NetworkThread()
 		QueueElement element;
 
 		if (!Recv(element.msg, element.address))
-			continue;
+		{
+			assert(pNetThreadCallBack && "pNetThreadCallBack not set\n");
+			pNetThreadCallBack(element.address);
+		}
 
 		ANetwork::threadLock.lock();
 
@@ -76,4 +85,10 @@ void NetworkThread()
 
 		ANetwork::threadLock.unlock();
 	}
+}
+
+void SetupNetworkThread(NetworkThreadCallback funcPtr)
+{
+	pNetThreadCallBack = funcPtr;
+	networkThread = std::thread(NetworkThread);
 }

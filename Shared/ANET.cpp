@@ -5,13 +5,12 @@ int ANetwork::ID = 0;
 SOCKET ANetwork::sock = { 0 };
 sockaddr_in ANetwork::local = { 0 };
 std::mutex ANetwork::threadLock;
+WSADATA ANetwork::wsaData = { 0 };
 
 void ANetwork::Setup()
 {
 	ANetwork::ID = 0;
-	WSADATA wsad;
-	WORD version = MAKEWORD(2, 2);
-	if (WSAStartup(version, &wsad))
+	if (WSAStartup(MAKEWORD(2, 2), &wsaData))
 		printf("[WSA] Could not init Winsock!\n");
 }
 
@@ -52,11 +51,9 @@ byte* ANetwork::Recv(sockaddr_in& address, int& bytesRecieved)
 	int addressSize = sizeof(address);
 	bytesRecieved = recvfrom(ANetwork::sock, (char*)tempBuffer, PACKET_MAX_SIZE, 0, (SOCKADDR*)&address, &addressSize);
 	
-	if (bytesRecieved == -1)
+	if (bytesRecieved == SOCKET_ERROR)
 	{
-		printf("%d\n", bytesRecieved);
 		printf("[ERROR] %d\n", WSAGetLastError());
-		system("pause");
 		return nullptr;
 	}
 

@@ -2,6 +2,8 @@
 #include "ClientNet.h"
 #include <iostream>
 
+// TODO: Set Up Software Menus (State Machine)
+
 // Allow User to choose where to connect
 void GetConnectionInfo(sockaddr_in& serverAddr);
 
@@ -13,9 +15,6 @@ int main()
 	Message toSend;
 	sockaddr_in serverAddr;
 	GetConnectionInfo(serverAddr);
-	printf("How many ticks per second?\n");
-	float ticksPerSecond;
-	std::cin >> ticksPerSecond;
 
 	Message toRecv;
 	sockaddr_in serverAuth;
@@ -25,10 +24,7 @@ int main()
 	FormatMessageData(toSend);
 
 	ConnectPacket connect{};
-	printf("Give me your name... and soul..\n");
-	std::string name;
-	std::cin >> name;
-	strncpy_s(connect.name, name.c_str(), sizeof(connect.name));
+	strncpy_s(connect.name, "PlayerName", sizeof(connect.name));
 
 	AddPacket<ConnectPacket>(toSend, PacketType::CLIENT_CONNECT, connect);
 
@@ -40,6 +36,7 @@ int main()
 	{
 		printf("Response Failed!\n");
 		system("pause");
+		ANetwork::Close();
 		return 0;
 	}
 	HandleMessage(toRecv);
@@ -51,6 +48,7 @@ int main()
 	{
 		printf("Connection Failed!\n");
 		system("pause");
+		ANetwork::Close();
 		return 0;
 	}
 	HandleMessage(toRecv);
@@ -68,8 +66,9 @@ int main()
 	// ... Now Connected, Start Game Loop
 	sf::RenderWindow window(sf::VideoMode(800, 800), "SFML works!");
 	
-	NetClock clock(ticksPerSecond);
-	std::thread networkThread(NetworkThread);
+	NetClock clock(66.0f);
+
+	SetupNetworkThread(NetThreadError);
 	
 
 	bool focused = true;

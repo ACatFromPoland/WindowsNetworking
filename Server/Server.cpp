@@ -1,5 +1,5 @@
 #include "ServerNet.h"
-#include <time.h>
+
 int main()
 {
 	ANetwork::Setup();
@@ -7,8 +7,8 @@ int main()
 
 	NetClock clock(66.0f);
 
-	std::thread networkThread(NetworkThread);
-
+	SetupNetworkThread(NetThreadError);
+	
 	// Setup Server
 	// Branch test
 	while (true)
