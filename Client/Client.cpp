@@ -1,156 +1,36 @@
-#include <SFML/Graphics.hpp>
-#include "ClientNet.h"
-#include <iostream>
+#include "ANet/Client.h"
 
-// TODO: Set Up Software Menus (State Machine)
+#define RETERR(x) return WSAError(x)
 
-// Allow User to choose where to connect
-void GetConnectionInfo(sockaddr_in& serverAddr);
+int WSAError(const char* Str)
+{
+	printf("%s", Str);
+
+	char buf[256];
+	FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL, WSAGetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPWSTR)buf, sizeof(buf), NULL);
+
+	printf(" %ld: %s\n", WSAGetLastError(), buf);
+
+	return 1;
+}
 
 int main()
 {
-	ANetwork::Setup();
-	ANetwork::Bind();
+	Client Net;
+	Net.Setup();
 
-	Message toSend;
-	sockaddr_in serverAddr;
-	GetConnectionInfo(serverAddr);
+	Net.Begin("127.0.0.1", 5006);
 
-	Message toRecv;
-	sockaddr_in serverAuth;
+	const char* sendbuf = "this is a test";
 
-	// TODO: Thread Connection Process (Currently waits forever)
-	// ... Make First Contact With Server
-	FormatMessageData(toSend);
+	if (!Net.Send(sendbuf, 15))
+		RETERR("Couldn't send data!");
 
-	ConnectPacket connect{};
-	strncpy_s(connect.name, "PlayerName", sizeof(connect.name));
-
-	AddPacket<ConnectPacket>(toSend, PacketType::CLIENT_CONNECT, connect);
-
-	Send(toSend, serverAddr);
-
-
-	// ... Wait For Server Response
-	if (!Recv(toRecv, serverAuth))
-	{
-		printf("Response Failed!\n");
-		system("pause");
-		ANetwork::Close();
-		return 0;
-	}
-	HandleMessage(toRecv);
-
-
-
-	// ... Wait for Server Data
-	if (!Recv(toRecv, serverAuth))
-	{
-		printf("Connection Failed!\n");
-		system("pause");
-		ANetwork::Close();
-		return 0;
-	}
-	HandleMessage(toRecv);
-
-
-
-	// ... Send Response to Server Data
-	FormatMessageData(toSend);
-
-	ResponsePacket response{};
-	AddPacket<ResponsePacket>(toSend, PacketType::ECHO_RESPOND, response);
-
-	Send(toSend, serverAddr);
-
-	// ... Now Connected, Start Game Loop
-	sf::RenderWindow window(sf::VideoMode(800, 800), "SFML works!");
+	if (!Net.Recv())
+		RETERR("CLIENT Error at recv!");
 	
-	NetClock clock(66.0f);
-
-	SetupNetworkThread(NetThreadError);
-	
-
-	bool focused = true;
-	// SFML GRAPHICS
-	while (window.isOpen())
-	{
-		sf::Event event;
-		while (window.pollEvent(event))
-		{
-			if (event.type == sf::Event::Closed)
-				window.close();
-			else if (event.type == sf::Event::GainedFocus)
-				focused = true;
-			else if (event.type == sf::Event::LostFocus)
-				focused = false;
-		}
-		window.clear(sf::Color(146, 146, 144));
-
-
-		// ... Recieve Server Updates
-		ANetwork::threadLock.lock();
-		for (QueueElement& q : packetQueue)
-			HandleMessage(q.msg);
-		packetQueue.purge();
-		ANetwork::threadLock.unlock();
-
-
-		if (clock.Tick() && focused)
-		{
-			// ... Send Client Data(Inputs...)
-			FormatMessageData(toSend);
-
-			InputPacket inputs;
-			inputs.ID = LocalClient.id;
-
-			inputs.input[0] = sf::Keyboard::isKeyPressed(sf::Keyboard::W);
-			inputs.input[1] = sf::Keyboard::isKeyPressed(sf::Keyboard::A);
-			inputs.input[2] = sf::Keyboard::isKeyPressed(sf::Keyboard::S);
-			inputs.input[3] = sf::Keyboard::isKeyPressed(sf::Keyboard::D);
-			
-			AddPacket<InputPacket>(toSend, PacketType::CLIENT_INPUT, inputs);
-
-			Send(toSend, serverAddr);
-		}
-		
-		// TODO: Render Player
-		// PLACE HOLDER PLAYER RENDERING
-		sf::CircleShape player;
-		
-		player.setFillColor(sf::Color::Red);
-		player.setRadius(15.0f);
-
-		for (int i = 0; i < maxPlayerCount; i++)
-		{
-			Player& cplayer = players[i];
-			if (!cplayer.active)
-				continue;
-
-			player.setPosition(sf::Vector2f(cplayer.x, cplayer.y));
-			window.draw(player);
-		}
-
-		window.display();
-	}
-
-	ANetwork::Close();
+	system("pause");
 	return 0;
-}
-
-void GetConnectionInfo(sockaddr_in& serverAddr)
-{
-	printf("Options: 0 = Self Host, 1 = Outbound Host\n");
-	int option;
-	std::cin >> option;
-
-	if (option)
-	{
-		printf("Enter Ip..\n");
-		std::string ip;
-		std::cin >> ip;
-		ANetwork::FormatAddress(serverAddr, ip.c_str(), 5006);
-	}
-	else
-		ANetwork::FormatAddress(serverAddr, "127.0.0.1", 5006);
 }

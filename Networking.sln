@@ -19,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{51A4E1
 		Shared\Utils.h = Shared\Utils.h
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ANet", "ANet\ANet.vcxproj", "{44D00A08-5F93-45F1-ACC2-02C147C79ADC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -43,6 +45,14 @@ Global
 		{89D70DD8-9F56-4ABA-B6EA-4E128EEECE92}.Release|x64.Build.0 = Release|x64
 		{89D70DD8-9F56-4ABA-B6EA-4E128EEECE92}.Release|x86.ActiveCfg = Release|Win32
 		{89D70DD8-9F56-4ABA-B6EA-4E128EEECE92}.Release|x86.Build.0 = Release|Win32
+		{44D00A08-5F93-45F1-ACC2-02C147C79ADC}.Debug|x64.ActiveCfg = Debug|x64
+		{44D00A08-5F93-45F1-ACC2-02C147C79ADC}.Debug|x64.Build.0 = Debug|x64
+		{44D00A08-5F93-45F1-ACC2-02C147C79ADC}.Debug|x86.ActiveCfg = Debug|Win32
+		{44D00A08-5F93-45F1-ACC2-02C147C79ADC}.Debug|x86.Build.0 = Debug|Win32
+		{44D00A08-5F93-45F1-ACC2-02C147C79ADC}.Release|x64.ActiveCfg = Release|x64
+		{44D00A08-5F93-45F1-ACC2-02C147C79ADC}.Release|x64.Build.0 = Release|x64
+		{44D00A08-5F93-45F1-ACC2-02C147C79ADC}.Release|x86.ActiveCfg = Release|Win32
+		{44D00A08-5F93-45F1-ACC2-02C147C79ADC}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

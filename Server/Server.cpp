@@ -1,52 +1,43 @@
-#include "ServerNet.h"
+#include "ANet/Host.h"
+
+#define RETERR(x) return WSAError(x)
+int WSAError(const char* Str)
+{
+	printf("%s", Str);
+	
+	char buf[256];
+	FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL, WSAGetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPWSTR)buf, sizeof(buf), NULL);
+	
+	printf(" %ld: %s\n", WSAGetLastError(), buf);
+
+	return 1;
+}
 
 int main()
 {
-	ANetwork::Setup();
-	ANetwork::Bind(5006);
+	Host Net;
+	Net.Setup();
 
-	NetClock clock(66.0f);
+	if (!Net.Begin(5006))
+		RETERR("Error starting Server!");
 
-	SetupNetworkThread(NetThreadError);
-	
-	// Setup Server
-	// Branch test
+
+
 	while (true)
 	{
-		// TODO: Update all clients with player positions
-		// Handle Server Updates
-		if (clock.Tick())
-		{
-			WorldPacket data{};
-			for (int i = 0; i < maxPlayerCount; i++)
-			{
-				data.active[i] = players[i].active;
-				data.pos[2 * i] = players[i].x;
-				data.pos[2 * i + 1] = players[i].y;
-			}
+		sockaddr_in fromAddress;
 
-			for (Player& player : players)
-			{
-				if (!player.active)
-					continue;
+		if (!Net.RecvFrom(fromAddress))
+			RETERR("Error at recvfrom");
 
-				Message toSend;
-				FormatMessageData(toSend);
+		// Send Data
+		const char* sendbuf = "this is a test";
 
-				AddPacket<WorldPacket>(toSend, PacketType::SERVER_WORLD, data);
-
-				Send(toSend, player.client);
-			}
-		}
-
-		// Handle Client Packet
-		ANetwork::threadLock.lock();
-		for (QueueElement& q : packetQueue)
-			HandleMessage(q.msg, q.address);
-		packetQueue.purge();
-		ANetwork::threadLock.unlock();
+		if (!Net.SendTo(sendbuf, 15, fromAddress))
+			RETERR("SERVER Error at sendto!");
 	}
 
-	ANetwork::Close();
 	return 0;
 }
