@@ -4,20 +4,18 @@
 class Client : public Network
 {
 public:
-	~Client()
-	{
-		CleanUp();
-	}
+	~Client();
 
 	bool Begin(const char* ip, u_short port);
 
-	bool Send(const char* buffer, size_t size);
+	bool Send(unsigned char* buffer, size_t size);
 
-	bool Recv();
+	bool Recv(unsigned char* buffer, size_t size);
 
 	void CleanUp();
 
 private:
+
 	SOCKET serviceSocket;
 
 	sockaddr_in hostAddress;

@@ -1,4 +1,9 @@
-#include "Client.h"
+#include "ANet/Client.h"
+
+Client::~Client()
+{
+	CleanUp();
+}
 
 bool Client::Begin(const char* ip, u_short port)
 {
@@ -26,12 +31,12 @@ void Client::CleanUp()
 	WSACleanup();
 }
 
-bool Client::Send(const char* buffer, size_t size)
+bool Client::Send(unsigned char* buffer, size_t size)
 {
-	return (sendto(serviceSocket, buffer, size, 0, (SOCKADDR*)&hostAddress, sizeof(hostAddress)) != SOCKET_ERROR);
+	return (sendto(serviceSocket, (char*)buffer, size, 0, (SOCKADDR*)&hostAddress, sizeof(hostAddress)) != SOCKET_ERROR);
 }
 
-bool Client::Recv()
+bool Client::Recv(unsigned char* buffer, size_t size)
 {
 	char recvbuf[DEFAULT_BUFLEN];
 	memset(recvbuf, 0, DEFAULT_BUFLEN);

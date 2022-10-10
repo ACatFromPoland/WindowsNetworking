@@ -141,12 +141,14 @@
   <ItemGroup>
     <ClInclude Include="ANet\Client.h" />
     <ClInclude Include="ANet\Host.h" />
+    <ClInclude Include="ANet\NetVar.h" />
     <ClInclude Include="ANet\Network.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ANet\Host.cpp" />
-    <ClCompile Include="ANet\Client.cpp" />
-    <ClCompile Include="ANet\Network.cpp" />
+    <ClCompile Include="Client.cpp" />
+    <ClCompile Include="Host.cpp" />
+    <ClCompile Include="NetVar.cpp" />
+    <ClCompile Include="Network.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

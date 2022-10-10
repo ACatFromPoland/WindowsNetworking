@@ -10,7 +10,7 @@ public:
 
 	bool SendTo(const char* buffer, size_t size, sockaddr_in& address);
 
-	bool RecvFrom(sockaddr_in& address);
+	bool RecvFrom(unsigned char*, size_t size, sockaddr_in& address);
 
 	void CleanUp();
 

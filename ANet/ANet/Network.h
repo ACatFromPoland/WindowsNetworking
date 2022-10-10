@@ -11,6 +11,8 @@
 
 #define DEFAULT_BUFLEN 512
 
+//#define RET_ERROR(x) return WSAError(x)
+
 class Network
 {
 public:
@@ -20,6 +22,8 @@ public:
 	}
 
 	bool Setup();
+
+	int WSAError(const char* Str);
 
 	virtual void CleanUp();
 };

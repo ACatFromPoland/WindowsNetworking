@@ -1,4 +1,4 @@
-#include "Host.h"
+#include "ANet/Host.h"
 
 bool Host::Begin(u_short port)
 {
@@ -17,7 +17,7 @@ bool Host::Begin(u_short port)
 		return false;
 
 	// TODO: Start Thread
-
+	return true;
 }
 
 bool Host::StartupRecv()
@@ -53,10 +53,10 @@ Host::~Host()
 
 bool Host::SendTo(const char* buffer, size_t size, sockaddr_in& address)
 {
-	return (sendto(sendSocket, buffer, size, 0, (SOCKADDR*)&address, sizeof(address)) != SOCKET_ERROR);
+	return (sendto(sendSocket, buffer, (int)size, 0, (SOCKADDR*)&address, (int)sizeof(address)) != SOCKET_ERROR);
 }
 
-bool Host::RecvFrom(sockaddr_in& address)
+bool Host::RecvFrom(unsigned char*, size_t size, sockaddr_in& address)
 {
 	char recvbuf[DEFAULT_BUFLEN];
 	memset(recvbuf, 0, DEFAULT_BUFLEN);
