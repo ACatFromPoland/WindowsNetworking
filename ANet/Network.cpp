@@ -1,14 +1,9 @@
-#include "ANet/Network.h"
+#include "Network.h"
 
 bool Network::Setup()
 {
 	WSADATA wsaData;
 	return (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0);
-}
-
-void Network::CleanUp()
-{
-	WSACleanup();
 }
 
 int Network::WSAError(const char* Str)
@@ -21,6 +16,8 @@ int Network::WSAError(const char* Str)
 		(LPWSTR)buf, sizeof(buf), NULL);
 
 	printf(" %ld: %s\n", WSAGetLastError(), buf);
-
+	
+	// Temporary fix :D
+	abort();
 	return 1;
 }

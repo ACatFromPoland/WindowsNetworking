@@ -1,79 +1,89 @@
 #pragma once
-#include "Network.h"
-#include "SPlayer.h"
+#include "ANet/Host.h"
+#include "ANet/NetBuffer.h"
+#include "Shared/NetworkTypes.h"
+#include "Shared/DynamicArray.h"
+#include "Enviroment.h"
 
-void NetThreadError(sockaddr_in& address)
+struct PacketData
 {
+	NetBuffer buffer;
+	sockaddr_in address;
+};
+DynamicArray<PacketData> toSendPackets;
+DynamicArray<PacketData> toRecvPackets;
 
-	// Remove Player if (?)
+void clientInfoData(PacketData& data, Host& net, Enviroment& world)
+{
+	NetBuffer response;
 
+	// How many headers
+	response.write<int>(2);
+	
+	// Server Info Header
+	response.write<unsigned char>(HeaderType::SERVER_INFO);
+	
+	int n = world.addPlayer();
+	response.write<int>(n);
+	response.write<unsigned char>(16);
+
+	// Create Entity Header
+	response.write<unsigned char>(HeaderType::CREATE_ENTITY);
+
+	// Add All Entities
+	response.write<int>(EntityTypes::ENTITY);
+	response.write<unsigned char>((unsigned char)world.entities.count);
+
+	net.SendTo(response.buffer, response.size, data.address);
 }
 
-void Client_Connect(Message& msg, sockaddr_in& address)
+void clientInputData(PacketData& data, Host& net, Enviroment& world)
 {
-	// Recieve 
-	ConnectPacket* connect = msg.fetch<ConnectPacket>();
+	int pId = data.buffer.read<int>();
+	bool inputs[Player::playerInputsSize];
+	for (int i = 0; i < Player::playerInputsSize; i++)
+	{
+		inputs[i] = data.buffer.read<bool>();
+	}
 
-	char ip[16];
-	ANetwork::GetIPAddress(address, ip);
-
-	printf("[CLIENT CONNECTED] NAME: %s  IP: %s:%d\n", connect->name, ip, (int) address.sin_port);
-
-	// Respond
-	Message toSend;
-	FormatMessageData(toSend);
-
-	ResponsePacket response = { 1 };
-	AddPacket<ResponsePacket>(toSend, PacketType::ECHO_RESPOND, response);
-
-	Send(toSend, address);
-
-	// Player Stuff
-	int playerId = addPlayer(address);
-
-	// Send Init
-	toSend;
-	FormatMessageData(toSend);
-
-	InitPacket init = { playerId, 12 };
-	AddPacket<InitPacket>(toSend, PacketType::SERVER_DATA, init);
-
-	Send(toSend, address);
-
-	printf("[PLAYER CREATED] ID: %d\n", playerId);
+	world.movePlayer(pId, inputs, Player::playerInputsSize);
 }
 
-void Client_Input(Message& msg, sockaddr_in& data)
-{
-	InputPacket* input = msg.fetch<InputPacket>();
-
-	movePlayer(input->ID, input->input);
-}
-
-void Echo_Respond(Message& msg, sockaddr_in& data)
-{
-	ResponsePacket* starter = msg.fetch<ResponsePacket>();
-}
-
-typedef void (*HandlePacket)(Message&, sockaddr_in&);
-
-HandlePacket packetHandlers[lastType] = {
-	Client_Connect,
+typedef void (*packetFunc)(PacketData&, Host& net, Enviroment&);
+packetFunc packetHandlers[HeaderType::LAST_HEADERTYPE] = {
 	nullptr,
-	Client_Input,
+	clientInfoData,
+	clientInputData,
 	nullptr,
-	Echo_Respond
 };
 
-void HandleMessage(Message& msg, sockaddr_in& data)
+void HandlePacket(PacketData& packet, Host& net, Enviroment& world)
 {
-	msg.beginFetch();
-	StarterPacket* starter = msg.fetch<StarterPacket>();
-	// Verify packet isn't old...
-
-	while ((size_t)msg.iter - (size_t)msg.memory < msg.count)
+	int headers = packet.buffer.read<int>();
+	for (int i = 0; i < headers; i++)
 	{
-		HeaderPacket* header = msg.fetch<HeaderPacket>();
-		packetHandlers[header->type](msg, data);
+		HeaderType type = packet.buffer.read<HeaderType>();
+		int count = packet.buffer.read<int>();
+		for (int j = 0; j < count; j++)
+			packetHandlers[type](packet, net, world);
+	}
+}
+
+void serverThread(Host& Net)
+{
+	while (true)
+	{
+		// Recv Data
+		sockaddr_in fromAddress;
+		NetBuffer recvBuffer;
+		if (!Net.RecvFrom(recvBuffer.buffer, NetBuffer::size, fromAddress))
+		{
+			Net.WSAError("Error at recvfrom");
+			break;
+		}
+
+		Net.ThreadLock.lock();
+		toRecvPackets.pushBack({ recvBuffer, fromAddress });
+		Net.ThreadLock.unlock();
 	}
 }

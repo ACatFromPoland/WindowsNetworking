@@ -1,4 +1,4 @@
-#include "ANet/Client.h"
+#include "Client.h"
 
 Client::~Client()
 {
@@ -23,6 +23,8 @@ bool Client::Begin(const char* ip, u_short port)
 	}
 
 	// TODO: Start Recv Thread
+
+	return true;
 }
 
 void Client::CleanUp()
@@ -33,18 +35,12 @@ void Client::CleanUp()
 
 bool Client::Send(unsigned char* buffer, size_t size)
 {
-	return (sendto(serviceSocket, (char*)buffer, size, 0, (SOCKADDR*)&hostAddress, sizeof(hostAddress)) != SOCKET_ERROR);
+	return (sendto(serviceSocket, (char*)buffer, (int)size, 0, (SOCKADDR*)&hostAddress, (int)sizeof(hostAddress)) != SOCKET_ERROR);
 }
 
 bool Client::Recv(unsigned char* buffer, size_t size)
 {
-	char recvbuf[DEFAULT_BUFLEN];
-	memset(recvbuf, 0, DEFAULT_BUFLEN);
-
-	int iResult = recv(serviceSocket, recvbuf, DEFAULT_BUFLEN, 0);
-
-	printf("%s\n", recvbuf);
+	int iResult = recv(serviceSocket, (char*)buffer, (int)size, 0);
 
 	return (iResult != SOCKET_ERROR);
 }
-

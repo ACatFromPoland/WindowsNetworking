@@ -9,14 +9,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server", "Server\Server.vcx
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{51A4E1D0-33D5-4E9B-A8AD-D150B9FCE213}"
 	ProjectSection(SolutionItems) = preProject
-		Shared\ANET.cpp = Shared\ANET.cpp
-		Shared\ANET.h = Shared\ANET.h
 		Shared\Clock.h = Shared\Clock.h
 		Shared\DynamicArray.h = Shared\DynamicArray.h
-		Shared\Message.h = Shared\Message.h
-		Shared\NetStruct.h = Shared\NetStruct.h
-		Shared\Network.h = Shared\Network.h
+		Shared\NetworkTypes.h = Shared\NetworkTypes.h
+		Shared\Updateable.h = Shared\Updateable.h
 		Shared\Utils.h = Shared\Utils.h
+		Shared\Vector2.h = Shared\Vector2.h
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ANet", "ANet\ANet.vcxproj", "{44D00A08-5F93-45F1-ACC2-02C147C79ADC}"

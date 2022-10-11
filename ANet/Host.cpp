@@ -1,4 +1,4 @@
-#include "ANet/Host.h"
+#include "Host.h"
 
 bool Host::Begin(u_short port)
 {
@@ -50,21 +50,15 @@ Host::~Host()
 	CleanUp();
 }
 
-
-bool Host::SendTo(const char* buffer, size_t size, sockaddr_in& address)
+bool Host::SendTo(unsigned char* buffer, size_t size, sockaddr_in& address)
 {
-	return (sendto(sendSocket, buffer, (int)size, 0, (SOCKADDR*)&address, (int)sizeof(address)) != SOCKET_ERROR);
+	return (sendto(sendSocket, (char*)buffer, (int)size, 0, (SOCKADDR*)&address, (int)sizeof(address)) != SOCKET_ERROR);
 }
 
-bool Host::RecvFrom(unsigned char*, size_t size, sockaddr_in& address)
+bool Host::RecvFrom(unsigned char* buffer, size_t size, sockaddr_in& address)
 {
-	char recvbuf[DEFAULT_BUFLEN];
-	memset(recvbuf, 0, DEFAULT_BUFLEN);
-
-	int _addressSize = sizeof(address);
-	int iResult = recvfrom(recvSocket, recvbuf, DEFAULT_BUFLEN, 0, (SOCKADDR*)&address, &_addressSize);
-
-	printf("%s\n", recvbuf);
+	int _addressSize = (int)sizeof(address);
+	int iResult = recvfrom(recvSocket, (char*)buffer, (int)size, 0, (SOCKADDR*)&address, &_addressSize);
 
 	return (iResult != SOCKET_ERROR);
 }

@@ -9,21 +9,14 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
-#define DEFAULT_BUFLEN 512
-
-//#define RET_ERROR(x) return WSAError(x)
-
 class Network
 {
 public:
-	~Network()
-	{
-		CleanUp();
-	}
+	std::mutex ThreadLock;
 
 	bool Setup();
 
 	int WSAError(const char* Str);
 
-	virtual void CleanUp();
+	virtual void CleanUp() = 0;
 };

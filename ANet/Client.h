@@ -12,7 +12,7 @@ public:
 
 	bool Recv(unsigned char* buffer, size_t size);
 
-	void CleanUp();
+	virtual void CleanUp();
 
 private:
 

@@ -8,11 +8,11 @@ public:
 
 	bool Begin(u_short port = 0);
 
-	bool SendTo(const char* buffer, size_t size, sockaddr_in& address);
+	bool SendTo(unsigned char* buffer, size_t size, sockaddr_in& address);
 
 	bool RecvFrom(unsigned char*, size_t size, sockaddr_in& address);
 
-	void CleanUp();
+	virtual void CleanUp();
 
 private:
 

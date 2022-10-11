@@ -68,7 +68,8 @@ void NetworkThread()
 	while (true)
 	{
 		QueueElement element;
-
+		memset(&element.address, 0, sizeof(element.address));
+		
 		if (!Recv(element.msg, element.address))
 		{
 			assert(pNetThreadCallBack && "pNetThreadCallBack not set\n");
