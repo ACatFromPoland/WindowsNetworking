@@ -1,6 +1,6 @@
-#include "Host.h"
+#include "Server.h"
 
-bool Host::Begin(u_short port)
+bool Server::Begin(u_short port)
 {
 	// Setup Listener Socket
 	hostAddress.sin_addr.S_un.S_addr = ADDR_ANY;
@@ -20,7 +20,7 @@ bool Host::Begin(u_short port)
 	return true;
 }
 
-bool Host::StartupRecv()
+bool Server::StartupRecv()
 {
 	recvSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	if (recvSocket == INVALID_SOCKET)
@@ -32,30 +32,30 @@ bool Host::StartupRecv()
 	return (bind(recvSocket, (sockaddr*)&hostAddress, sizeof(hostAddress)) != SOCKET_ERROR);
 }
 
-bool Host::StartupSend()
+bool Server::StartupSend()
 {
 	sendSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	return (sendSocket != INVALID_SOCKET);
 }
 
-void Host::CleanUp()
+void Server::CleanUp()
 {
 	closesocket(sendSocket);
 	closesocket(recvSocket);
 	WSACleanup();
 }
 
-Host::~Host()
+Server::~Server()
 {
 	CleanUp();
 }
 
-bool Host::SendTo(unsigned char* buffer, size_t size, sockaddr_in& address)
+bool Server::SendTo(unsigned char* buffer, size_t size, sockaddr_in& address)
 {
 	return (sendto(sendSocket, (char*)buffer, (int)size, 0, (SOCKADDR*)&address, (int)sizeof(address)) != SOCKET_ERROR);
 }
 
-bool Host::RecvFrom(unsigned char* buffer, size_t size, sockaddr_in& address)
+bool Server::RecvFrom(unsigned char* buffer, size_t size, sockaddr_in& address)
 {
 	int _addressSize = (int)sizeof(address);
 	int iResult = recvfrom(recvSocket, (char*)buffer, (int)size, 0, (SOCKADDR*)&address, &_addressSize);

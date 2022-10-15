@@ -1,5 +1,7 @@
 #pragma once
 
+#define BUFFERS
+
 class NetBuffer
 {
 public:
@@ -16,6 +18,11 @@ public:
 	void clear()
 	{
 		iter = buffer;
+	}
+
+	bool isEmpty()
+	{
+		return (iter == buffer);
 	}
 
 	template <class T>

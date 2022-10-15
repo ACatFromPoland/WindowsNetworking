@@ -1,10 +1,10 @@
 #pragma once
 #include "Network.h"
 
-class Host : public Network
+class Server : public Network
 {
 public:
-	~Host();
+	~Server();
 
 	bool Begin(u_short port = 0);
 

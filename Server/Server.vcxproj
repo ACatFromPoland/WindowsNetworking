@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -141,9 +141,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Entity.cpp" />
-    <ClCompile Include="Player.cpp" />
-    <ClCompile Include="Server.cpp" />
+    <ClCompile Include="s_player.cpp" />
+    <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ANet\ANet.vcxproj">
@@ -151,9 +150,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Entity.h" />
     <ClInclude Include="Enviroment.h" />
-    <ClInclude Include="Player.h" />
+    <ClInclude Include="s_player.h" />
+    <ClInclude Include="Server.h" />
     <ClInclude Include="ServerNet.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

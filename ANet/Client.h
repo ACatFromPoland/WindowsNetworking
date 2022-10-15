@@ -4,6 +4,8 @@
 class Client : public Network
 {
 public:
+	bool connected;
+
 	~Client();
 
 	bool Begin(const char* ip, u_short port);

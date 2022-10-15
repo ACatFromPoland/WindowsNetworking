@@ -24,11 +24,11 @@ public:
 	~DynamicArray()
 	{
 		purge();
-		//free(memory);
 	}
 
 	void copy(DynamicArray& dynamic1)
 	{
+
 		count = dynamic1.count;
 		memorySize = dynamic1.memorySize;
 		memory = (T*)malloc(dynamic1.memorySize * sizeof(T));
@@ -94,10 +94,11 @@ public:
 	{
 		for (int i = 0; i < count; i++)
 			memory[i].~T();
+			
 		count = 0;
 		memorySize = 0;
 		free(memory);
-		memory = nullptr;
+ 		memory = nullptr;
 	}
 
 	// Ops overloads

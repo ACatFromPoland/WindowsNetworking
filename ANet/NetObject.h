@@ -7,9 +7,9 @@ class NetVarBase;
 class NetObject
 {
 public:
+	// I don't think Dynami Array likes pointers
 	DynamicArray<NetVarBase*> netVariables;
 
 	void WriteToBuffer(NetBuffer& buffer);
 	void ReadFromBuffer(NetBuffer& buffer);
 };
-

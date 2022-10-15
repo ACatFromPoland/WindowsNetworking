@@ -1,16 +1,18 @@
 ﻿//TODO: Store array size in header \/HERE
+#include "ANet/NetBuffer.h"
+
 enum HeaderType : unsigned char
 {
-	SERVER_INFO = 0,
-	CLIENT_INFO,
-	CLIENT_INPUT,
+	GENERIC = 0,
+	CONNECT,
 	ENTITY,
+	MOVE,
 	LAST_HEADERTYPE
 };
 
-enum EntityTypes : int
+enum EntityTypes : unsigned char
 {
-	ENTITY = 0,
+	HUSK = 0,
 	PLAYER,
 	PROJECTILE,
 	LAST_ENTITYTYPE

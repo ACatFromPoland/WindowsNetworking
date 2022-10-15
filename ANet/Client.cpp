@@ -7,7 +7,7 @@ Client::~Client()
 
 bool Client::Begin(const char* ip, u_short port)
 {
-	// Host Address Setup
+	// Server Address Setup
 	hostAddress.sin_family = AF_INET;
 
 	inet_pton(AF_INET, ip, &hostAddress.sin_addr);
