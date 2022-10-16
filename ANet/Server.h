@@ -1,10 +1,10 @@
 #pragma once
-#include "Network.h"
+#include "NetBase.h"
 
-class Server : public Network
+class NetServer : public NetBase
 {
 public:
-	~Server();
+	~NetServer();
 
 	bool Begin(u_short port = 0);
 
@@ -15,10 +15,10 @@ public:
 	virtual void CleanUp();
 
 private:
-
+	// Abstraction
 	bool StartupRecv();
-
 	bool StartupSend();
+
 
 	SOCKET sendSocket;
 	SOCKET recvSocket;

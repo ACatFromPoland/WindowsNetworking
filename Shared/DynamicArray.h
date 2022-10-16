@@ -1,5 +1,11 @@
 #pragma once
-#include "Utils.h"
+#include <stdlib.h>
+
+inline void* myalloc(size_t size)
+{
+	return malloc(size);
+}
+#define malloc myalloc
 
 size_t roundUpToMultipleOfTwo(size_t v);
 
@@ -28,7 +34,6 @@ public:
 
 	void copy(DynamicArray& dynamic1)
 	{
-
 		count = dynamic1.count;
 		memorySize = dynamic1.memorySize;
 		memory = (T*)malloc(dynamic1.memorySize * sizeof(T));
@@ -64,6 +69,11 @@ public:
 		return memory[count - 1];
 	}
 
+	T& back()
+	{
+		return memory[count - 1];
+	}
+
 	void pushBack(const T& element)
 	{
 		++count;
@@ -94,11 +104,11 @@ public:
 	{
 		for (int i = 0; i < count; i++)
 			memory[i].~T();
-			
+
 		count = 0;
 		memorySize = 0;
 		free(memory);
- 		memory = nullptr;
+		memory = nullptr;
 	}
 
 	// Ops overloads

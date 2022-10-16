@@ -1,11 +1,13 @@
 #include "Client.h"
 
-Client::~Client()
+NetClient::~NetClient()
 {
 	CleanUp();
 }
 
-bool Client::Begin(const char* ip, u_short port)
+
+
+bool NetClient::Begin(const char* ip, u_short port)
 {
 	// Server Address Setup
 	hostAddress.sin_family = AF_INET;
@@ -22,25 +24,23 @@ bool Client::Begin(const char* ip, u_short port)
 		return false;
 	}
 
-	// TODO: Start Recv Thread
-
 	return true;
 }
 
-void Client::CleanUp()
-{
-	closesocket(serviceSocket);
-	WSACleanup();
-}
-
-bool Client::Send(unsigned char* buffer, size_t size)
+bool NetClient::Send(unsigned char* buffer, size_t size)
 {
 	return (sendto(serviceSocket, (char*)buffer, (int)size, 0, (SOCKADDR*)&hostAddress, (int)sizeof(hostAddress)) != SOCKET_ERROR);
 }
 
-bool Client::Recv(unsigned char* buffer, size_t size)
+bool NetClient::Recv(unsigned char* buffer, size_t size)
 {
 	int iResult = recv(serviceSocket, (char*)buffer, (int)size, 0);
 
 	return (iResult != SOCKET_ERROR);
+}
+
+void NetClient::CleanUp()
+{
+	closesocket(serviceSocket);
+	WSACleanup();
 }

@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{44d00a08-5f93-45f1-acc2-02c147c79adc}</ProjectGuid>
-    <RootNamespace>ANet</RootNamespace>
+    <ProjectGuid>{efa5754d-a141-41ef-82c0-7e2a42bd62f2}</ProjectGuid>
+    <RootNamespace>ANET</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -116,7 +116,6 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -131,7 +130,6 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -141,19 +139,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Client.cpp" />
-    <ClCompile Include="Server.cpp" />
-    <ClCompile Include="NetObject.cpp" />
-    <ClCompile Include="NetVar.cpp" />
-    <ClCompile Include="Network.cpp" />
+    <ClInclude Include="Client.h" />
+    <ClInclude Include="NetBase.h" />
+    <ClInclude Include="NetBuffer.h" />
+    <ClInclude Include="Server.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Client.h" />
-    <ClInclude Include="NetBuffer.h" />
-    <ClInclude Include="NetObject.h" />
-    <ClInclude Include="NetVar.h" />
-    <ClInclude Include="Network.h" />
-    <ClInclude Include="Server.h" />
+    <ClCompile Include="Client.cpp" />
+    <ClCompile Include="NetBase.cpp" />
+    <ClCompile Include="NetBuffer.cpp" />
+    <ClCompile Include="Server.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

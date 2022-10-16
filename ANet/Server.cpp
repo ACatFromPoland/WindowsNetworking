@@ -1,6 +1,13 @@
 #include "Server.h"
 
-bool Server::Begin(u_short port)
+NetServer::~NetServer()
+{
+	CleanUp();
+}
+
+
+
+bool NetServer::Begin(u_short port)
 {
 	// Setup Listener Socket
 	hostAddress.sin_addr.S_un.S_addr = ADDR_ANY;
@@ -15,12 +22,32 @@ bool Server::Begin(u_short port)
 	// Setup Sender Socket
 	if (!StartupSend())
 		return false;
-
-	// TODO: Start Thread
 	return true;
 }
 
-bool Server::StartupRecv()
+bool NetServer::SendTo(unsigned char* buffer, size_t size, sockaddr_in& address)
+{
+	return (sendto(sendSocket, (char*)buffer, (int)size, 0, (SOCKADDR*)&address, (int)sizeof(address)) != SOCKET_ERROR);
+}
+
+bool NetServer::RecvFrom(unsigned char* buffer, size_t size, sockaddr_in& address)
+{
+	int _addressSize = (int)sizeof(address);
+	int iResult = recvfrom(recvSocket, (char*)buffer, (int)size, 0, (SOCKADDR*)&address, &_addressSize);
+
+	return (iResult != SOCKET_ERROR);
+}
+
+void NetServer::CleanUp()
+{
+	closesocket(sendSocket);
+	closesocket(recvSocket);
+	WSACleanup();
+}
+
+
+
+bool NetServer::StartupRecv()
 {
 	recvSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	if (recvSocket == INVALID_SOCKET)
@@ -32,33 +59,8 @@ bool Server::StartupRecv()
 	return (bind(recvSocket, (sockaddr*)&hostAddress, sizeof(hostAddress)) != SOCKET_ERROR);
 }
 
-bool Server::StartupSend()
+bool NetServer::StartupSend()
 {
 	sendSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	return (sendSocket != INVALID_SOCKET);
-}
-
-void Server::CleanUp()
-{
-	closesocket(sendSocket);
-	closesocket(recvSocket);
-	WSACleanup();
-}
-
-Server::~Server()
-{
-	CleanUp();
-}
-
-bool Server::SendTo(unsigned char* buffer, size_t size, sockaddr_in& address)
-{
-	return (sendto(sendSocket, (char*)buffer, (int)size, 0, (SOCKADDR*)&address, (int)sizeof(address)) != SOCKET_ERROR);
-}
-
-bool Server::RecvFrom(unsigned char* buffer, size_t size, sockaddr_in& address)
-{
-	int _addressSize = (int)sizeof(address);
-	int iResult = recvfrom(recvSocket, (char*)buffer, (int)size, 0, (SOCKADDR*)&address, &_addressSize);
-
-	return (iResult != SOCKET_ERROR);
 }

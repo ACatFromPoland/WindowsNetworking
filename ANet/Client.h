@@ -1,12 +1,10 @@
 #pragma once
-#include "Network.h"
+#include "Netbase.h"
 
-class Client : public Network
+class NetClient : public NetBase
 {
 public:
-	bool connected;
-
-	~Client();
+	~NetClient();
 
 	bool Begin(const char* ip, u_short port);
 

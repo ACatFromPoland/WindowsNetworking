@@ -9,14 +9,17 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
-class Network
+class NetBase
 {
 public:
-	std::mutex ThreadLock;
+	std::mutex threadLock;
 
+	// Sets up WSA
 	bool Setup();
 
+	// Call an Error
 	int WSAError(const char* Str);
 
+	// Template for cleaning up WSA
 	virtual void CleanUp() = 0;
 };

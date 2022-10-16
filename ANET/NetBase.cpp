@@ -1,12 +1,12 @@
-#include "Network.h"
+#include "NetBase.h"
 
-bool Network::Setup()
+bool NetBase::Setup()
 {
 	WSADATA wsaData;
 	return (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0);
 }
 
-int Network::WSAError(const char* Str)
+int NetBase::WSAError(const char* Str)
 {
 	printf("%s", Str);
 
@@ -15,9 +15,8 @@ int Network::WSAError(const char* Str)
 		NULL, WSAGetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 		(LPWSTR)buf, sizeof(buf), NULL);
 
-	printf(" %ld: %s\n", WSAGetLastError(), buf);
-	
-	// Temporary fix :D
-	abort();
+	printf(" %ld: %s\n\n", WSAGetLastError(), buf);
+
+	abort(); // Temporary fix :D
 	return 1;
 }
