@@ -32,5 +32,8 @@
     <ClInclude Include="sThreading.h">
       <Filter>Header Files\Net</Filter>
     </ClInclude>
+    <ClInclude Include="s_Player.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

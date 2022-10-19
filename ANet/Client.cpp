@@ -36,7 +36,7 @@ bool NetClient::Recv(unsigned char* buffer, size_t size)
 {
 	int iResult = recv(serviceSocket, (char*)buffer, (int)size, 0);
 
-	return (iResult != SOCKET_ERROR);
+	return (iResult > 0);
 }
 
 void NetClient::CleanUp()

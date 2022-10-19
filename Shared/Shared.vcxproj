@@ -144,12 +144,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="DynamicArray.h" />
+    <ClInclude Include="NetBuffer.h" />
     <ClInclude Include="NetClock.h" />
+    <ClInclude Include="NetEntity.h" />
+    <ClInclude Include="NetObject.h" />
+    <ClInclude Include="NetPackets.h" />
     <ClInclude Include="NetPlayer.h" />
+    <ClInclude Include="NetRocket.h" />
     <ClInclude Include="NetShared.h" />
+    <ClInclude Include="NetVar.h" />
+    <ClInclude Include="Vector2.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="NetBuffer.cpp" />
     <ClCompile Include="NetClock.cpp" />
+    <ClCompile Include="NetObject.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

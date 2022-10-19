@@ -19,6 +19,9 @@
     <Filter Include="Source Files\Network">
       <UniqueIdentifier>{cdf1f35d-0386-4e48-91ce-6388f32b63e5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Network\NetEntities">
+      <UniqueIdentifier>{7482d9b1-cd3e-4b45-829f-e05ce052b7cc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NetShared.h">
@@ -30,12 +33,39 @@
     <ClInclude Include="NetClock.h">
       <Filter>Header Files\Network</Filter>
     </ClInclude>
-    <ClInclude Include="NetPlayer.h">
+    <ClInclude Include="NetBuffer.h">
       <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="NetObject.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="NetVar.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="NetPackets.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="NetEntity.h">
+      <Filter>Header Files\Network</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NetPlayer.h">
+      <Filter>Header Files\Network\NetEntities</Filter>
+    </ClInclude>
+    <ClInclude Include="NetRocket.h">
+      <Filter>Header Files\Network\NetEntities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="NetClock.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="NetBuffer.cpp">
+      <Filter>Source Files\Network</Filter>
+    </ClCompile>
+    <ClCompile Include="NetObject.cpp">
       <Filter>Source Files\Network</Filter>
     </ClCompile>
   </ItemGroup>

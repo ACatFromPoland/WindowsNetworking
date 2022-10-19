@@ -1,6 +1,6 @@
 #pragma once
 #include "Shared/DynamicArray.h"
-#include "ANET/NetBuffer.h"
+#include "Shared/NetBuffer.h"
 #include "ANET/Client.h"
 
 struct packetData

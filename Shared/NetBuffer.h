@@ -23,17 +23,18 @@ public:
 	}
 
 	template <class T>
-	void write(T value)
+	T& write(T value)
 	{
-		*(T*)iter = value;
+		T* ptr = (T*)iter;
+		*ptr = value;
 		iter += sizeof(T);
+		return *ptr;
 	}
 
-	void pushBack(unsigned char* buffer, size_t size)
+	template <class T>
+	void write(T* buffer, int size)
 	{
 		for (int i = 0; i < size; i++)
-		{
-			write<unsigned char>(buffer[i]);
-		}
+			write<T>(buffer[i]);
 	}
 };

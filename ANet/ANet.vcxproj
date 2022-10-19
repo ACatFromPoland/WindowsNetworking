@@ -141,13 +141,11 @@
   <ItemGroup>
     <ClInclude Include="Client.h" />
     <ClInclude Include="NetBase.h" />
-    <ClInclude Include="NetBuffer.h" />
     <ClInclude Include="Server.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Client.cpp" />
     <ClCompile Include="NetBase.cpp" />
-    <ClCompile Include="NetBuffer.cpp" />
     <ClCompile Include="Server.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

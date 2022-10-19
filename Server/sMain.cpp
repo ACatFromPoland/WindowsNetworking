@@ -2,47 +2,22 @@
 #include <iostream>
 
 #include "ANET/Server.h"
-#include "ANET/NetBuffer.h"
 
+#include "Shared/NetBuffer.h"
 #include "Shared/NetShared.h"
 #include "Shared/NetClock.h"
 #include "Shared/DynamicArray.h"
+#include "Shared/NetPackets.h"
+
 #include "Shared/NetPlayer.h"
+#include "Shared/NetRocket.h"
 
 #include "sThreading.h"
-
-class Player : public NetPlayer
-{
-public:
-	int lastPacketID;
-	double lastPacketTick;
-	static int ID;
-	sockaddr_in client;
-
-	Player(int _lastPacketID, sockaddr_in _client, int _id, float _x, float _y)
-	{
-		lastPacketTick = 0.0f;
-		lastPacketID = _lastPacketID;
-		client = _client;
-		id = _id;
-		x = _x;
-		y = _y;
-	}
-
-	void movePlayer(bool inputs[4])
-	{
-		if (inputs[0]) y -= 1.0f;
-		if (inputs[1]) y += 1.0f;
-		if (inputs[2]) x -= 1.0f;
-		if (inputs[3]) x += 1.0f;
-	}
-};
-int Player::ID = 0;
 
 struct World
 {
 	NetServer& server;
-	std::vector<Player>& playerList;
+	DynamicArray<Player>& playerList;
 	NetClock& clock;
 
 	Player* clientExists(USHORT port) 
@@ -69,64 +44,102 @@ struct World
 		return nullptr;
 	}
 
-	int createPlayer(sockaddr_in address)
+	Player& createPlayer(sockaddr_in address)
 	{
-		int id = Player::ID++;
-		playerList.push_back(Player(0, address, id, 400.0f, 400.0f));
-		playerList.back().lastPacketTick = clock.getTick();
+		int playerId = NetEntity::ID++;
 
-		NetBuffer init;
-		init.write<i32>(TYPE_CONNECT);
-		init.write<i32>(0);
-		init.write<i32>(id);
-		server.SendTo(init.buffer, NetBuffer::size, address);
+		Player& newPlayer = playerList.pushBack();
+		newPlayer.init(0, address, playerId, Vector2(400.0f, 400.0f));
+		newPlayer.lastPacketTick = clock.getTick();
 
-		return id;
+		NetBuffer connectPacket;
+		connectPacket.write<StarterData>({0, 1});
+		connectPacket.write<HeaderData>({HEADER_CONNECT, 1});
+		
+		connectPacket.write<i32>(playerId);
+
+		server.SendTo(connectPacket.buffer, NetBuffer::size, address);
+		return newPlayer;
 	}
 };
 
+void handleHeader(packetData& packet, World& world)
+{
+	HeaderData headerData = packet.read<HeaderData>();
+	for (int i = 0; i < headerData.count; i++)
+	{
+		switch (headerData.type)
+		{	
+			// TODO: Handle Default Case!
+			case HeaderTypes::HEADER_GENERIC:
+			{
+				i32 id = packet.read<i32>();
+				Player* player = world.getPlayer(id);
+				if (!player)
+					return;
+
+				player->lastPacketTick = world.clock.getTick();
+				break;
+			}
+			case HeaderTypes::HEADER_CONNECT:
+			{
+				Player& ref = world.createPlayer(packet.address);
+				i32 playerId = ref.id;
+				std::cout << "[PLAYER CREATED] " << playerId << std::endl;
+				break;
+			}
+			case HeaderTypes::HEADER_MOVE:
+			{
+				MoveData movement = packet.read<MoveData>();
+				Player* player = world.getPlayer(movement.id);
+				if (!player)
+					return;
+
+				player->movePlayer(movement.inputs);
+				
+				if (movement.inputs.get(IN_MOUSE1))
+				{
+					sockaddr_in empty = {};
+					Player& ref = world.createPlayer(empty);
+					ref.position = movement.mousePosition;
+					ref.bot = true;
+				}
+				break;
+			}
+			default:
+				printf("Invalid Packet Header! %d\n", headerData.type);
+		}
+	}
+}
 
 void handlePacket(packetData& packet, World& world)
 {
-	// Check for stuff!
-	i32 packetID = packet.read<i32>();
-	Player* existingPlayer = world.clientExists(packet.clientPort());
-	if (existingPlayer)
+	StarterData starterData = packet.read<StarterData>();
+	for (int i = 0; i < starterData.headerCount; i++)
 	{
-		if (packetID > existingPlayer->lastPacketID)
-			existingPlayer->lastPacketID = packetID;
-		else
-			return;
+		handleHeader(packet, world);
 	}
+}
 
-	// Handle Packet
-	i32 header = packet.read<i32>();
-	if (header == TYPE_CONNECT)
-	{
-		int id = world.createPlayer(packet.address);
-		std::string ip;
-		std::cout << "[PLAYER CREATED] " << id << std::endl;
-	}
-	else if (header == TYPE_MOVE)
-	{
-		i32 playerID = packet.read<i32>();
-		bool inputs[4];
-		for (bool& b : inputs)
-			b = packet.read<bool>();
-		
-		Player* player = world.getPlayer(playerID);
-		if (!player)
-			return;
-
-		player->lastPacketTick = world.clock.getTick();
-		player->movePlayer(inputs);
-	}
+void setConsoleMode()
+{
+	HANDLE conHandle = GetStdHandle(-10);
+	DWORD mode;
+	if (!GetConsoleMode(conHandle, &mode))
+		printf("No Console?\n");
+	mode = mode & ~(64 | 128); // Disable QuickEditMode
+	if (!SetConsoleMode(conHandle, mode))
+		printf("Can't Set Console Mode!\n");
 }
 
 static int lastPacketID = 0;
 int main()
 {
-	std::vector<Player> players;
+	setConsoleMode();
+
+	DynamicArray<Player> players;
+
+	players.allocate(NetPlayer::maxPlayers);
 
 	NetServer net;
 	net.Setup();
@@ -152,48 +165,48 @@ int main()
 
 		if (debugClock.Tick())
 		{
-			std::cout << "[Player Count] " << players.size() << std::endl;
+			std::cout << "[Player Count] " << players.count << std::endl;
 		}
-
-		/*for (int i = (int)players.size() - 1; i >= 0; i--)
-		{
-			Player& player = players[i];
-			if (clock.timeSince(player.lastPacketTick) > 5.0f)
-			{
-				std::cout << "Player Disconnected!" << std::endl;
-				players.pop_back();
-			}
-		}*/
 
 		if (!clock.Tick())
 			continue;
 
-		// Update Players
-		if (!players.empty())
+		for (int i = (int)players.count - 1; i >= 0; i--)
 		{
-			// TODO: Replace with NetVar writeToBuffer
-			i8* playerEntityBuffer = (unsigned char*)malloc(sizeof(NetPlayer) * players.size());
-			NetPlayer* iter = (NetPlayer*)playerEntityBuffer;
-			for (int i = 0; i < players.size(); i++)
-			{
-				Player& ref = players[i];
+			Player& player = players[i];
+			if (player.bot)
+				continue;
+			if (clock.timeSince(player.lastPacketTick) < 1.0f)
+				continue;
 
-				NetPlayer netPlayer{ ref.id, ref.x, ref.y };
-				iter[i] = netPlayer;
+			if (player.id < 0)
+			{
+				std::cout << "Player Disconnected!" << std::endl;
+				players.fastRemove(i);
+			}
+			else
+			{
+				player.id = -player.id;
+			}
+		}
+
+		// Update Players
+		if (!players.isEmpty())
+		{
+			NetBuffer toSend;
+			toSend.write<StarterData>({++lastPacketID, 1});
+			toSend.write<HeaderData>({HeaderTypes::HEADER_ENTITY, 1});
+			
+			toSend.write<EntityData>({EntityTypes::ENT_PLAYER, (i32)players.count});
+			for (Player& ref : players)
+			{
+				toSend.write<EntityID>({ref.id});
+				ref.writeToBuffer(toSend);
 			}
 
-			NetBuffer toSend;
-			toSend.write<i32>(++lastPacketID);
-
-			toSend.write<i32>(TYPE_UPDATE);
-			toSend.write<i32>((int)players.size());
-
-			// Push player data array to send
-			toSend.pushBack(playerEntityBuffer, sizeof(NetPlayer) * players.size());
-			free(playerEntityBuffer);
-
 			for (Player& player : players)
-				net.SendTo(toSend.buffer, NetBuffer::size, player.client);
+				if (!player.bot)
+					net.SendTo(toSend.buffer, NetBuffer::size, player.client);
 		}
 	}
 

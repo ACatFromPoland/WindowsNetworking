@@ -4,13 +4,13 @@
 #include <iostream>
 
 #include "ANET/Client.h"
-#include "ANET/NetBuffer.h"
+#include "Shared/NetBuffer.h"
 
 #include "Shared/NetShared.h"
 #include "Shared/NetClock.h"
 #include "Shared/DynamicArray.h"
-
 #include "Shared/NetPlayer.h"
+#include "Shared/NetPackets.h"
 
 #include "cThreading.h"
 
@@ -23,24 +23,21 @@ static int packetsDropped = 0;
 class Player : public NetPlayer
 {
 public:
-	Player(int _id, float _x, float _y)
+	Player()
 	{
-		id = _id;
-		x = _x;
-		y = _y;
+
 	}
 
 	void move(NetPlayer& ref)
 	{
-		x = ref.x;
-		y = ref.y;
+		position = ref.position;
 	}
 };
 
 struct World
 {
 	NetClient& client;
-	std::vector<Player>& playerList;
+	DynamicArray<Player>& playerList;
 	NetClock& clock;
 
 	Player* getPlayer(int id)
@@ -56,87 +53,100 @@ struct World
 	}
 };
 
+void handleEntities(packetData& packet, World& world)
+{
+	EntityData entData = packet.read<EntityData>();
+
+	for (i32 i = 0; i < entData.count; i++)
+	{
+		EntityID entity = packet.read<EntityID>();
+		switch (entData.type)
+		{
+			case EntityTypes::ENT_PLAYER:
+			{
+				if (entity.id < 0)
+				{
+					std::cout << "Player Disconnected!" << std::endl;
+					i32 temp = abs(entity.id);
+					for (int i = 0; i < world.playerList.count; i++)
+					{
+						if (world.playerList[i].id == temp)
+							world.playerList.fastRemove(i);
+					}
+					break;
+				}
+
+				Player* player = world.getPlayer(entity.id);
+				if (!player)
+				{
+					std::cout << "[PLAYER CREATED] " << entity.id << std::endl;
+					Player& player = world.playerList.pushBack();
+					player.id = entity.id;
+					player.readFromBuffer(packet.buffer);
+				}
+				else
+				{
+					player->readFromBuffer(packet.buffer);
+				}
+				break;
+			}
+		}
+	}
+}
+
+void handleHeader(packetData& packet, World& world)
+{
+	HeaderData headerData = packet.read<HeaderData>();
+	for (int i = 0; i < headerData.count; i++)
+	{
+		switch (headerData.type)
+		{
+			case HeaderTypes::HEADER_ENTITY:
+			{
+				handleEntities(packet, world);
+				break;
+			}
+		}
+	}
+}
+
 void handlePacket(packetData& packet, World& world)
 {
-	/*int* n = (int*)packet.buffer.buffer;
-	std::cout << n[1] << std::endl;*/
-
-	i32 packetID = packet.read<i32>();
-	if (packetID <= serverLastPacketID)
+	packet.buffer.clear();
+	
+	StarterData starterData = packet.read<StarterData>();
+	for (int i = 0; i < starterData.headerCount; i++)
 	{
-		packetsDropped++;
-		return;
+		handleHeader(packet, world);
 	}
-
-	i32 header = packet.read<i32>();
-	if (header == TYPE_UPDATE)
-	{
-		i32 playerSize = packet.read<i32>();
-		if (playerSize > 128 || playerSize < 0)
-		{
-			std::cout << "Mo Fucker tried to create " << playerSize << " players..." << std::endl;
-			packetsDropped++;
-			return;
-		}
-
-		for (i32 i = 0; i < playerSize; i++)
-		{
-			NetPlayer recvPlayer = packet.read<NetPlayer>();
-			Player* player = world.getPlayer(recvPlayer.id);
-			if (!player)
-			{
-				std::cout << "[PLAYER CREATED] " << recvPlayer.id << std::endl;
-				world.playerList.push_back(Player(recvPlayer.id, recvPlayer.x, recvPlayer.y));
-			}
-			else
-			{
-				player->move(recvPlayer);
-			}
-		}
-
-		if (world.playerList.size() != playerSize)
-		{
-			std::cout << "[ERROR] Expected Player Count: " << playerSize << "  Unique Player ID's in Packet: " << world.playerList.size() << std::endl;
-			world.playerList.clear(); // Reset players
-		}
-	}
-	else
-		packetsDropped++;
 }
 
 int main()
 {
 	NetClient net;
 	net.Setup();
-
-	std::cout << "Enter IP!\n";
+	
+	/*printf("IP...\n");
 	std::string ip;
-	std::cin >> ip;
-
-	net.Begin(ip.c_str(), 5006);
+	std::cin >> ip;*/
+	net.Begin("127.0.0.1", 5006);
+	//net.Begin(ip.c_str(), 5006);
 
 	// Attempt Connection!
 	{
 		NetBuffer toSend;
-		toSend.write<i32>(0);
-		toSend.write<i32>(TYPE_CONNECT);
+		toSend.write<StarterData>({ 0, 1 });
+		toSend.write<HeaderData>({HeaderTypes::HEADER_CONNECT, 1});
 		net.Send(toSend.buffer, NetBuffer::size);
 		
 		NetBuffer toRecv;
-		while (true)
-		{
-			net.Recv(toRecv.buffer, NetBuffer::size);
+		net.Recv(toRecv.buffer, NetBuffer::size);
 
-			i32 packetID = toRecv.read<i32>();
-			if (packetID == 0)
-			{
-				i32 header = toRecv.read<i32>();
-				if (header == TYPE_CONNECT)
-					break;
-			}
-			toRecv.clear();
-		}
+		StarterData starter = toRecv.read<StarterData>();
+		HeaderData header = toRecv.read<HeaderData>();
+		
 		localPlayerID = toRecv.read<i32>();
+		
 		std::cout << "[Connected] Our ID: " << localPlayerID << std::endl;
 	}
 
@@ -146,7 +156,8 @@ int main()
 
 	sf::RenderWindow window(sf::VideoMode(800, 800), "Trojan.exe");
 
-	std::vector<Player> players;
+	DynamicArray<Player> players;
+	players.allocate(NetPlayer::maxPlayers);
 
 	NetClock clock(66.0f);
 	NetClock debugClock(0.5f);
@@ -176,31 +187,38 @@ int main()
 		if (debugClock.Tick()) 
 		{
 			std::cout << "\n";
-			std::cout << "[Player Count] " << players.size() << std::endl;
+			std::cout << "[Player Count] " << players.count << std::endl;
 			std::cout << "[Packets Dropped] " << packetsDropped << std::endl;
 		}
 
-		if (clock.Tick() && focused)
+		if (clock.Tick())
 		{
 			NetBuffer toSend;
-
-			toSend.write<i32>(++clientLastPacketID);
-
-			toSend.write<i32>(TYPE_MOVE);
+			toSend.write<StarterData>({0, 0});
+			toSend.write<HeaderData>({ HeaderTypes::HEADER_GENERIC, 1 });
 			toSend.write<i32>(localPlayerID);
+			((StarterData*)&toSend.buffer)->headerCount++;
 
-			bool inputs[4];
-			inputs[0] = sf::Keyboard::isKeyPressed(sf::Keyboard::W);
-			inputs[1] = sf::Keyboard::isKeyPressed(sf::Keyboard::S);
-			inputs[2] = sf::Keyboard::isKeyPressed(sf::Keyboard::A);
-			inputs[3] = sf::Keyboard::isKeyPressed(sf::Keyboard::D);
-
-			for (int i = 0; i < 4; i++)
+			if (focused)
 			{
-				bool temp = inputs[i];
-				toSend.write<bool>(temp);
-			}
+				toSend.write<HeaderData>({ HeaderTypes::HEADER_MOVE, 1 });
 
+				MoveData data;
+
+				data.id = localPlayerID;
+				data.inputs.set(IN_FORWARD, sf::Keyboard::isKeyPressed(sf::Keyboard::W));
+				data.inputs.set(IN_LEFT, sf::Keyboard::isKeyPressed(sf::Keyboard::A));
+				data.inputs.set(IN_BACK, sf::Keyboard::isKeyPressed(sf::Keyboard::S));
+				data.inputs.set(IN_RIGHT, sf::Keyboard::isKeyPressed(sf::Keyboard::D));
+				data.inputs.set(IN_MOUSE1, sf::Mouse::isButtonPressed(sf::Mouse::Left));
+
+				sf::Vector2f mousePos = sf::Vector2f(window.mapPixelToCoords(sf::Mouse::getPosition(window)));
+				data.mousePosition = Vector2(mousePos.x, mousePos.y);
+
+				toSend.write<MoveData>(data);
+
+				((StarterData*)&toSend.buffer)->headerCount++;
+			}
 			net.Send(toSend.buffer, NetBuffer::size);
 		}
 
@@ -213,7 +231,9 @@ int main()
 
 		for (Player& player : players)
 		{
-			circle.setPosition(player.x, player.y);
+			Vector2& pos = player.position.value;
+			sf::Vector2f pPosition = sf::Vector2f(pos.x, pos.y);
+			circle.setPosition(pPosition);
 			window.draw(circle);
 		}
 

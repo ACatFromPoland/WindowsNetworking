@@ -1,7 +1,7 @@
 #pragma once
 //#include <vector>
 #include "Shared/DynamicArray.h"
-#include "ANET/NetBuffer.h"
+#include "Shared/NetBuffer.h"
 #include "ANET/Server.h"
 
 struct packetData
