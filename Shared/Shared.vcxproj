@@ -158,6 +158,7 @@
   <ItemGroup>
     <ClCompile Include="NetBuffer.cpp" />
     <ClCompile Include="NetClock.cpp" />
+    <ClCompile Include="NetEntity.cpp" />
     <ClCompile Include="NetObject.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

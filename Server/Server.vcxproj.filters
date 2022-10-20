@@ -27,12 +27,21 @@
     <ClCompile Include="sThreading.cpp">
       <Filter>Source Files\Net</Filter>
     </ClCompile>
+    <ClCompile Include="sPacketHandler.cpp">
+      <Filter>Source Files\Net</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sThreading.h">
       <Filter>Header Files\Net</Filter>
     </ClInclude>
-    <ClInclude Include="s_Player.h">
+    <ClInclude Include="sPlayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sPacketHandler.h">
+      <Filter>Header Files\Net</Filter>
+    </ClInclude>
+    <ClInclude Include="sWorld.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,138 +1,9 @@
-#include <vector>
-#include <iostream>
-
-#include "ANET/Server.h"
-
-#include "Shared/NetBuffer.h"
-#include "Shared/NetShared.h"
-#include "Shared/NetClock.h"
-#include "Shared/DynamicArray.h"
-#include "Shared/NetPackets.h"
-
-#include "Shared/NetPlayer.h"
-#include "Shared/NetRocket.h"
-
+#include "sPacketHandler.h"
 #include "sThreading.h"
+#include "sWorld.h"
 
-struct World
-{
-	NetServer& server;
-	DynamicArray<Player>& playerList;
-	NetClock& clock;
+void setConsoleMode();
 
-	Player* clientExists(USHORT port) 
-	{
-		for (Player& player : playerList)
-		{
-			if (player.client.sin_port == port)
-			{
-				return &player;
-			}
-		}
-		return nullptr;
-	}
-
-	Player* getPlayer(int id)
-	{
-		for (Player& player : playerList)
-		{
-			if (player.id == id)
-			{
-				return &player;
-			}
-		}
-		return nullptr;
-	}
-
-	Player& createPlayer(sockaddr_in address)
-	{
-		int playerId = NetEntity::ID++;
-
-		Player& newPlayer = playerList.pushBack();
-		newPlayer.init(0, address, playerId, Vector2(400.0f, 400.0f));
-		newPlayer.lastPacketTick = clock.getTick();
-
-		NetBuffer connectPacket;
-		connectPacket.write<StarterData>({0, 1});
-		connectPacket.write<HeaderData>({HEADER_CONNECT, 1});
-		
-		connectPacket.write<i32>(playerId);
-
-		server.SendTo(connectPacket.buffer, NetBuffer::size, address);
-		return newPlayer;
-	}
-};
-
-void handleHeader(packetData& packet, World& world)
-{
-	HeaderData headerData = packet.read<HeaderData>();
-	for (int i = 0; i < headerData.count; i++)
-	{
-		switch (headerData.type)
-		{	
-			// TODO: Handle Default Case!
-			case HeaderTypes::HEADER_GENERIC:
-			{
-				i32 id = packet.read<i32>();
-				Player* player = world.getPlayer(id);
-				if (!player)
-					return;
-
-				player->lastPacketTick = world.clock.getTick();
-				break;
-			}
-			case HeaderTypes::HEADER_CONNECT:
-			{
-				Player& ref = world.createPlayer(packet.address);
-				i32 playerId = ref.id;
-				std::cout << "[PLAYER CREATED] " << playerId << std::endl;
-				break;
-			}
-			case HeaderTypes::HEADER_MOVE:
-			{
-				MoveData movement = packet.read<MoveData>();
-				Player* player = world.getPlayer(movement.id);
-				if (!player)
-					return;
-
-				player->movePlayer(movement.inputs);
-				
-				if (movement.inputs.get(IN_MOUSE1))
-				{
-					sockaddr_in empty = {};
-					Player& ref = world.createPlayer(empty);
-					ref.position = movement.mousePosition;
-					ref.bot = true;
-				}
-				break;
-			}
-			default:
-				printf("Invalid Packet Header! %d\n", headerData.type);
-		}
-	}
-}
-
-void handlePacket(packetData& packet, World& world)
-{
-	StarterData starterData = packet.read<StarterData>();
-	for (int i = 0; i < starterData.headerCount; i++)
-	{
-		handleHeader(packet, world);
-	}
-}
-
-void setConsoleMode()
-{
-	HANDLE conHandle = GetStdHandle(-10);
-	DWORD mode;
-	if (!GetConsoleMode(conHandle, &mode))
-		printf("No Console?\n");
-	mode = mode & ~(64 | 128); // Disable QuickEditMode
-	if (!SetConsoleMode(conHandle, mode))
-		printf("Can't Set Console Mode!\n");
-}
-
-static int lastPacketID = 0;
 int main()
 {
 	setConsoleMode();
@@ -211,4 +82,15 @@ int main()
 	}
 
 	return 0;
+}
+
+void setConsoleMode()
+{
+	HANDLE conHandle = GetStdHandle(-10);
+	DWORD mode;
+	if (!GetConsoleMode(conHandle, &mode))
+		printf("No Console?\n");
+	mode = mode & ~(64 | 128); // Disable QuickEditMode
+	if (!SetConsoleMode(conHandle, mode))
+		printf("Can't Set Console Mode!\n");
 }

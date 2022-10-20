@@ -1,9 +1,10 @@
 #pragma once
+#include <assert.h>
 
 class NetBuffer
 {
 public:
-	const static int size = 400;
+	const static int size = 2048;
 
 	unsigned char buffer[size];
 	unsigned char* iter;
@@ -25,6 +26,8 @@ public:
 	template <class T>
 	T& write(T value)
 	{
+		assert(("NetBuffer overflow!\n", getBytesLeft() >= sizeof(T)));
+
 		T* ptr = (T*)iter;
 		*ptr = value;
 		iter += sizeof(T);
@@ -36,5 +39,11 @@ public:
 	{
 		for (int i = 0; i < size; i++)
 			write<T>(buffer[i]);
+	}
+
+private:
+	int getBytesLeft()
+	{
+		return size - (int)(iter - buffer);
 	}
 };

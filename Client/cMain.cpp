@@ -28,6 +28,16 @@ public:
 
 	}
 
+	virtual void update()
+	{
+
+	}
+
+	virtual void foo()
+	{
+
+	}
+
 	void move(NetPlayer& ref)
 	{
 		position = ref.position;

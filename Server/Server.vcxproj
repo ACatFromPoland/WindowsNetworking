@@ -146,6 +146,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="sMain.cpp" />
+    <ClCompile Include="sPacketHandler.cpp" />
     <ClCompile Include="sThreading.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -157,8 +158,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="sPacketHandler.h" />
     <ClInclude Include="sThreading.h" />
-    <ClInclude Include="s_Player.h" />
+    <ClInclude Include="sWorld.h" />
+    <ClInclude Include="sPlayer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

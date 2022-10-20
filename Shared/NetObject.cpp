@@ -5,7 +5,8 @@ void NetObject::writeToBuffer(NetBuffer& buffer)
 {
 	for (ptrdiff_t var : netVars)
 	{
-		getNetVar(var)->write(buffer);
+		NetVarBase* p = getNetVar(var);
+		p->write(buffer);
 	}
 }
 
@@ -19,9 +20,10 @@ void NetObject::readFromBuffer(NetBuffer& buffer)
 
 NetVarBase* NetObject::getNetVar(ptrdiff_t offset)
 {
-	return (NetVarBase*)((ptrdiff_t)this + offset);
+	return (NetVarBase*)((ptrdiff_t)this - 8 + offset);
 }
 
+// Dead Code
 int NetObject::getNetVarSize()
 {
 	int size = 0;

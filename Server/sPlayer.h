@@ -27,7 +27,7 @@ public:
 
 	virtual void update()
 	{
-
+		
 	}
 
 	void movePlayer(bitInt inputs)
