@@ -1,12 +1,16 @@
 #pragma once
-#include "NetVar.h"
-#include "NetShared.h"
+#include "Shared/NetActor.h"
 
-class NetEntity : public NetObject
+class Entity : public NetActor
 {
 public:
-	static int ID;
-	i32 id;
-	
-	virtual void update() = 0;
+	bool toDelete;
+
+	Entity()
+	{
+		toDelete = false;
+	}
+
+	virtual bool isPlayer() { return false; }
+	virtual void update() {}
 };

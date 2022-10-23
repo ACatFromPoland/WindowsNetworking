@@ -1,2 +1,3 @@
-#include "NetEntity.h"
-int NetEntity::ID = 0;
+#include "NetEntityBase.h"
+
+u32 NetEntityBase::ID = 0;

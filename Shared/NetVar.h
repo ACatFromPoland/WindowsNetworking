@@ -18,9 +18,9 @@ class NetVar : public NetVarBase
 public:
 	T value;
 
-	NetVar(DynamicArray<ptrdiff_t>& netVars, void* parent)
+	NetVar(DynamicArray<ptrdiff_t>& netVars, ptrdiff_t diff)
 	{
-		netVars.pushBack((ptrdiff_t)this - (ptrdiff_t)parent);
+		netVars.pushBack(diff);
 	}
 
 	virtual void read(NetBuffer& buffer)
@@ -83,9 +83,12 @@ public:
 // netVariables exists in NetObject.h
 // 
 // #name would have made it into a string
-#define NetInt(name) NetVar<int> name = {netVars, this}
-#define NetFloat(name) NetVar<float> name = {netVars, this}
-#define NetBool(name) NetVar<bool> name = {netVars, this}
-#define NetByte(name) NetVar<unsigned char> name = {netVars, this}
-#define NetVector2(name) NetVar<Vector2> name = {netVars, this}
+#define netOffset(s,m) ((::size_t)&reinterpret_cast<char const volatile&>((((s)0)->m)))
+#define netConstructor(name) name = {netVars, netOffset(decltype(this), name)}
+
+#define NetInt(name) NetVar<int> netConstructor(name)
+#define NetFloat(name) NetVar<float> netConstructor(name)
+#define NetBool(name) NetVar<bool> netConstructor(name)
+#define NetByte(name) NetVar<unsigned char> netConstructor(name)
+#define NetVector2(name) NetVar<Vector2> netConstructor(name)
 //#define NetEntType(name) NetVar<int> name = {netVars, this}

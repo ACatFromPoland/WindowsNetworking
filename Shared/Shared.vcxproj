@@ -144,9 +144,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="DynamicArray.h" />
+    <ClInclude Include="NetActor.h" />
     <ClInclude Include="NetBuffer.h" />
     <ClInclude Include="NetClock.h" />
     <ClInclude Include="NetEntity.h" />
+    <ClInclude Include="NetEntityBase.h" />
     <ClInclude Include="NetObject.h" />
     <ClInclude Include="NetPackets.h" />
     <ClInclude Include="NetPlayer.h" />

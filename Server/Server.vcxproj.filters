@@ -30,6 +30,9 @@
     <ClCompile Include="sPacketHandler.cpp">
       <Filter>Source Files\Net</Filter>
     </ClCompile>
+    <ClCompile Include="sWorld.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sThreading.h">
@@ -42,6 +45,12 @@
       <Filter>Header Files\Net</Filter>
     </ClInclude>
     <ClInclude Include="sWorld.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sRocket.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sEntityHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

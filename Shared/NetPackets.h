@@ -12,7 +12,9 @@ enum HeaderTypes : i32
 
 enum EntityTypes : i32
 {
-	ENT_PLAYER = 1,
+	ENT_EMPTY = 1,
+	ENT_PLAYER,
+	ENT_ROCKET,
 	entityLastType
 };
 
@@ -30,13 +32,14 @@ struct HeaderData
 
 struct EntityData
 {
-	EntityTypes type;
 	i32 count;
 };
 
 struct EntityID
 {
-	i32 id;
+	bool remove : 1;
+	u32 id : 31;
+	EntityTypes type;
 };
 
 enum InputBits
@@ -50,7 +53,7 @@ enum InputBits
 
 struct MoveData
 {
-	i32 id;
+	u32 id;
 	Vector2 mousePosition;
 	bitInt inputs;
 };

@@ -2,39 +2,36 @@
 #include "ANet/Server.h"
 #include "Shared/NetPlayer.h"
 #include "Shared/NetPackets.h"
+#include <stdio.h>
 
 class Player : public NetPlayer
 {
 public:
-	int lastPacketID;
 	double lastPacketTick;
 	sockaddr_in client;
-	bool bot;
 
-	Player() : NetPlayer()
+	bitInt inputs;
+	Vector2 mousePosition;
+	double lastClickTick;
+
+	Player()
 	{
-
+		type = EntityTypes::ENT_PLAYER;
 	}
 
-	void init(int _lastPacketID, sockaddr_in _client, int _id, Vector2 _position)
+	virtual bool isPlayer() { return true; }
+	
+	virtual void update() 
 	{
-		lastPacketID = _lastPacketID;
-		client = _client;
-		id = _id;
-		position = _position;
-		bot = false;
+		if (inputs.get(IN_FORWARD)) position.value.y -= 0.0001f;
+		if (inputs.get(IN_LEFT)) position.value.x -= 0.0001f;
+		if (inputs.get(IN_BACK)) position.value.y += 0.0001f;
+		if (inputs.get(IN_RIGHT)) position.value.x += 0.0001f;
 	}
 
-	virtual void update()
+	void setInputs(bitInt in, Vector2 mousePos)
 	{
-		
-	}
-
-	void movePlayer(bitInt inputs)
-	{
-		if (inputs.get(IN_FORWARD)) position.value.y -= 1.0f;
-		if (inputs.get(IN_LEFT)) position.value.x -= 1.0f;
-		if (inputs.get(IN_BACK)) position.value.y += 1.0f;
-		if (inputs.get(IN_RIGHT)) position.value.x += 1.0f;
+		inputs = in;
+		mousePosition = mousePos;
 	}
 };

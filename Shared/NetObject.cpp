@@ -1,11 +1,17 @@
 #include "NetObject.h"
 #include "NetVar.h"
 
+NetVarBase* getNetVar(void* thisptr, ptrdiff_t offset)
+{
+	//printf("NETVAR: %s\n", typeid(this).name());
+	return (NetVarBase*)((ptrdiff_t)thisptr + offset);
+}
+
 void NetObject::writeToBuffer(NetBuffer& buffer)
 {
 	for (ptrdiff_t var : netVars)
 	{
-		NetVarBase* p = getNetVar(var);
+		NetVarBase* p = getNetVar(this, var);
 		p->write(buffer);
 	}
 }
@@ -14,22 +20,17 @@ void NetObject::readFromBuffer(NetBuffer& buffer)
 {
 	for (ptrdiff_t var : netVars)
 	{
-		getNetVar(var)->read(buffer);
+		getNetVar(this, var)->read(buffer);
 	}
-}
-
-NetVarBase* NetObject::getNetVar(ptrdiff_t offset)
-{
-	return (NetVarBase*)((ptrdiff_t)this - 8 + offset);
 }
 
 // Dead Code
-int NetObject::getNetVarSize()
-{
-	int size = 0;
-	for (ptrdiff_t var : netVars)
-	{
-		size += getNetVar(var)->getSize();
-	}
-	return size;
-}
+//int NetObject::getNetVarSize()
+//{
+//	int size = 0;
+//	for (ptrdiff_t var : netVars)
+//	{
+//		size += getNetVar(var)->getSize();
+//	}
+//	return size;
+//}

@@ -146,7 +146,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="cMain.cpp" />
+    <ClCompile Include="cPacketHandler.cpp" />
+    <ClCompile Include="cPlayer.cpp" />
+    <ClCompile Include="cRocket.cpp" />
     <ClCompile Include="cThreading.cpp" />
+    <ClCompile Include="cWorld.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ANET\ANET.vcxproj">
@@ -157,7 +161,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cEntityHandler.h" />
+    <ClInclude Include="cPacketHandler.h" />
+    <ClInclude Include="cPlayer.h" />
+    <ClInclude Include="cRocket.h" />
     <ClInclude Include="cThreading.h" />
+    <ClInclude Include="cWorld.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

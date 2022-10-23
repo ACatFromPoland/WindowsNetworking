@@ -19,7 +19,7 @@ void handleHeader(packetData& packet, World& world)
 			// TODO: Handle Default Case!
 		case HeaderTypes::HEADER_GENERIC:
 		{
-			i32 id = packet.read<i32>();
+			u32 id = packet.read<u32>();
 			Player* player = world.getPlayer(id);
 			if (!player)
 				return;
@@ -29,9 +29,7 @@ void handleHeader(packetData& packet, World& world)
 		}
 		case HeaderTypes::HEADER_CONNECT:
 		{
-			Player& ref = world.createPlayer(packet.address);
-			i32 playerId = ref.id;
-			std::cout << "[PLAYER CREATED] " << playerId << std::endl;
+			Player* player = world.createPlayer(packet.address);
 			break;
 		}
 		case HeaderTypes::HEADER_MOVE:
@@ -41,15 +39,7 @@ void handleHeader(packetData& packet, World& world)
 			if (!player)
 				return;
 
-			player->movePlayer(movement.inputs);
-
-			if (movement.inputs.get(IN_MOUSE1))
-			{
-				/*sockaddr_in empty = {};
-				Player& ref = world.createPlayer(empty);
-				ref.position = movement.mousePosition;
-				ref.bot = true;*/
-			}
+			player->setInputs(movement.inputs, movement.mousePosition);
 			break;
 		}
 		default:

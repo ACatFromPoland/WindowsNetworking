@@ -1,8 +1,10 @@
 #pragma once
 #include "Vector2.h"
 
-typedef unsigned char i8;
-typedef unsigned short i16;
+typedef unsigned char u8;
+typedef unsigned short u16;
+typedef unsigned int u32;
+
 typedef int i32;
 typedef long long i64;
 
@@ -12,30 +14,30 @@ struct bitInt
 {
 	i32 value;
 
-	void set(int v, bool b)
+	void set(i32 v, bool b)
 	{
 		if (b) value |= v;
 		else value &= ~v;
 	}
-	i32 get(int v)
+	i32 get(i32 v)
 	{
 		return value & v;
 	}
-	void toggle(int v)
+	void toggle(i32 v)
 	{
 		value ^= v;
 	}
 
-	void setAt(int i, bool b)
+	void setAt(i32 i, bool b)
 	{
 		if (b) value |= (1 << i);
 		else value &= ~(1 << i);
 	}
-	bool getAt(int i)
+	bool getAt(i32 i)
 	{
 		return (value & (1 << i));
 	}
-	void toggleAt(int i)
+	void toggleAt(i32 i)
 	{
 		value ^= (1 << i);
 	}
