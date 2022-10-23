@@ -29,7 +29,8 @@ void handleHeader(packetData& packet, World& world)
 		}
 		case HeaderTypes::HEADER_CONNECT:
 		{
-			Player* player = world.createPlayer(packet.address);
+			ConnectData connectData = packet.read<ConnectData>();
+			Player* player = world.createPlayer(packet.address, connectData.classType);
 			break;
 		}
 		case HeaderTypes::HEADER_MOVE:

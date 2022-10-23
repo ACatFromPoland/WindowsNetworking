@@ -4,6 +4,30 @@
 
 void setConsoleMode();
 
+struct botSpawner
+{
+	bool shouldSpawn = true;
+	Player* bot = nullptr;
+	Vector2 position = Vector2(400.f, 100.f);
+
+	void spawnIfDead(World& world)
+	{
+		if (!bot)
+		{
+			bot = world.entityHandler.createEntity<Player>();
+			bot->position = position;
+			bot->classType = 0;
+			bot->isBot = true;
+			bot->type = ENT_BOT;
+		}
+		else
+		{
+			if (bot->toDelete)
+				bot = nullptr;
+		}
+	}
+};
+
 int main()
 {
 	setConsoleMode();
@@ -20,6 +44,12 @@ int main()
 	// Starts the game
 	World world = World(&net);
 
+	NetClock debug = NetClock(1.f);
+
+	botSpawner spawner;
+	spawner.spawnIfDead(world);
+	printf("[ENT COUNT] %d\n", (int)world.entityHandler.entities.count);
+
 	while (true)
 	{
 		// Handle new packets
@@ -31,12 +61,14 @@ int main()
 		packetQueue.purge();
 		net.threadLock.unlock();
 
-		// Check player connection
 		world.checkConnections();
 		
 		world.update();
 
 		world.updateClients();
+
+		if (debug.Tick())
+			printf("[ENT COUNT] %d\n", (int)world.entityHandler.entities.count);
 	}
 
 	return 0;

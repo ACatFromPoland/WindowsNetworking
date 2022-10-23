@@ -2,7 +2,7 @@
 
 Player::Player()
 {
-	
+	isBot = false;
 }
 
 void Player::update()

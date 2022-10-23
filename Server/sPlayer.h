@@ -2,6 +2,7 @@
 #include "ANet/Server.h"
 #include "Shared/NetPlayer.h"
 #include "Shared/NetPackets.h"
+#include "Shared/NetClock.h"
 #include <stdio.h>
 
 class Player : public NetPlayer
@@ -13,9 +14,12 @@ public:
 	bitInt inputs;
 	Vector2 mousePosition;
 	double lastClickTick;
+	
+	bool isBot;
 
 	Player()
 	{
+		isBot = false;
 		type = EntityTypes::ENT_PLAYER;
 	}
 

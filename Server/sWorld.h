@@ -17,7 +17,7 @@ public:
 	World(NetServer* network);
 
 	Player* getPlayer(u32 id);
-	Player* createPlayer(sockaddr_in address);
+	Player* createPlayer(sockaddr_in address, u8 classType);
 	void checkConnections();
 	void update();
 	void updateClients();

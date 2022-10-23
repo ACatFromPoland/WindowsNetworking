@@ -19,11 +19,12 @@ Player* World::getPlayer(u32 id)
 	return nullptr;
 }
 
-Player* World::createPlayer(sockaddr_in address)
+Player* World::createPlayer(sockaddr_in address, u8 classType)
 {
 	// Create Player
 	Player* player = entityHandler.createEntity<Player>();
 	player->client = address;
+	player->classType = classType;
 	player->position = Vector2(400.0f, 400.0f);
 	player->lastPacketTick = clock.getTick();
 
@@ -44,7 +45,10 @@ void World::checkConnections()
 	{
 		Player* player = entityHandler.players[i];
 		
-		if (clock.timeSince(player->lastPacketTick) < 1.0f)
+		if (player->isBot)
+			continue;
+
+		if (clock.timeSince(player->lastPacketTick) < 5.0f)
 			continue;
 
 		player->toDelete = true;

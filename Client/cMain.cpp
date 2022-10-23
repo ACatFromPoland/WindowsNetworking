@@ -16,11 +16,16 @@ int main()
 
 	net.Begin("127.0.0.1", 5006);
 
+	unsigned int classTypeInput = 0;
+	std::cin >> classTypeInput;
+	
 	// Attempt Connection!
 	{
 		NetBuffer toSend;
 		toSend.write<StarterData>({ 0, 1 });
 		toSend.write<HeaderData>({HeaderTypes::HEADER_CONNECT, 1});
+		toSend.write<ConnectData>({ (u8)classTypeInput });
+
 		net.Send(toSend.buffer, NetBuffer::size);
 		
 		NetBuffer toRecv;
@@ -68,15 +73,30 @@ int main()
 
 		sf::CircleShape circle;
 
+		sf::Color playerColors[9] =
+		{
+			sf::Color(178, 100, 90), // Scout
+			sf::Color(32, 36, 39), // Soldier
+			sf::Color(84, 47, 50), // Pyro
+			sf::Color(76, 44, 32), // Demoman
+			sf::Color(149, 123, 100), // Heavy
+			sf::Color(217, 127, 66), // Engineer
+			sf::Color(205, 180, 166), // Medic
+			sf::Color(58, 56, 41), // Sniper
+			sf::Color(93, 12, 32) // Spy
+		};
+
 		for (Entity* entity : world.entityHandler.entities)
 		{
 			if (!entity->isPlayer())
 				continue;
 
 			Player* p = (Player*)entity;
-
 			circle.setPosition(sf::Vector2f(p->position.value.x, p->position.value.y));
-			circle.setFillColor(sf::Color::Red);
+			if (p->isBot)
+				circle.setFillColor(sf::Color(78, 109, 123));
+			else
+				circle.setFillColor(playerColors[p->classType]);
 			circle.setRadius(15.0f);
 			window.draw(circle);
 		}

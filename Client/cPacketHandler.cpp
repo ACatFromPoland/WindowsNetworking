@@ -54,6 +54,25 @@ void handleEntities(packetData& packet, World& world)
 				player->readFromBuffer(packet.buffer);
 				break;
 			}
+			case EntityTypes::ENT_BOT:
+			{
+				if (entity.remove)
+				{
+					world.entityHandler.deleteEntity(entity.id);
+					break;
+				}
+
+				Player* player = world.entityHandler.getEntity<Player>(entity.id);
+				if (!player)
+				{
+					player = world.entityHandler.createEntity<Player>(entity.id);
+					player->isBot = true;
+					break;
+				}
+
+				player->readFromBuffer(packet.buffer);
+				break;
+			}
 		}
 	}
 }

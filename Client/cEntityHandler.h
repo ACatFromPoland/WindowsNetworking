@@ -25,7 +25,6 @@ public:
 		if (entity->isPlayer())
 			players.pushBack(entity);
 
-
 		entity->id = id;
 
 		return entity;

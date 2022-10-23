@@ -1,7 +1,7 @@
 #pragma once
 #include "NetShared.h"
 
-enum HeaderTypes : i32
+enum HeaderTypes : u8
 {
 	HEADER_GENERIC = 1,
 	HEADER_CONNECT,
@@ -10,9 +10,10 @@ enum HeaderTypes : i32
 	headerLastType
 };
 
-enum EntityTypes : i32
+enum EntityTypes : u8
 {
 	ENT_EMPTY = 1,
+	ENT_BOT,
 	ENT_PLAYER,
 	ENT_ROCKET,
 	entityLastType
@@ -60,5 +61,5 @@ struct MoveData
 
 struct ConnectData
 {
-
+	u8 classType;
 };

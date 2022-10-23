@@ -3,7 +3,6 @@
 
 NetVarBase* getNetVar(void* thisptr, ptrdiff_t offset)
 {
-	//printf("NETVAR: %s\n", typeid(this).name());
 	return (NetVarBase*)((ptrdiff_t)thisptr + offset);
 }
 
@@ -23,14 +22,3 @@ void NetObject::readFromBuffer(NetBuffer& buffer)
 		getNetVar(this, var)->read(buffer);
 	}
 }
-
-// Dead Code
-//int NetObject::getNetVarSize()
-//{
-//	int size = 0;
-//	for (ptrdiff_t var : netVars)
-//	{
-//		size += getNetVar(var)->getSize();
-//	}
-//	return size;
-//}
