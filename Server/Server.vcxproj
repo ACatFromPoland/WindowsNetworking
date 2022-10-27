@@ -145,6 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Collision.cpp" />
     <ClCompile Include="sMain.cpp" />
     <ClCompile Include="sPacketHandler.cpp" />
     <ClCompile Include="sThreading.cpp" />
@@ -159,6 +160,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Collision.h" />
     <ClInclude Include="sEntityHandler.h" />
     <ClInclude Include="sPacketHandler.h" />
     <ClInclude Include="sRocket.h" />

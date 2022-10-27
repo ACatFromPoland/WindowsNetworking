@@ -6,6 +6,24 @@
 #include "sPlayer.h"
 #include "sRocket.h"
 
+class ColliderBase
+{
+public:
+
+};
+
+class BoxCollider : public ColliderBase
+{
+public:
+
+};
+
+class Ray : public ColliderBase
+{
+public:
+
+};
+
 class World
 {
 public:
@@ -21,4 +39,8 @@ public:
 	void checkConnections();
 	void update();
 	void updateClients();
+	
+	bool collides(Vector2 point);
+	bool collides(BoxCollider box);
+	bool collides(Ray ray);
 };
