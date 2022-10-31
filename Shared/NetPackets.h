@@ -1,6 +1,8 @@
 #pragma once
 #include "NetShared.h"
 
+#define ENTITY_ID u16
+
 enum HeaderTypes : u8
 {
 	HEADER_GENERIC = 1,
@@ -21,25 +23,25 @@ enum EntityTypes : u8
 
 struct StarterData
 {
-	i32 packetID;
-	i32 headerCount;
+	u32 packetID;
+	u32 headerCount;
 };
 
 struct HeaderData
 {
 	HeaderTypes type;
-	i32 count;
+	u32 count;
 };
 
 struct EntityData
 {
-	i32 count;
+	u32 count;
 };
 
 struct EntityID
 {
 	bool remove : 1;
-	u32 id : 31;
+	ENTITY_ID id : 15;
 	EntityTypes type;
 };
 
@@ -54,7 +56,7 @@ enum InputBits
 
 struct MoveData
 {
-	u32 id;
+	ENTITY_ID id;
 	Vector2 mousePosition;
 	bitInt inputs;
 };
@@ -62,4 +64,14 @@ struct MoveData
 struct ConnectData
 {
 	u8 classType;
+};
+
+struct InitData
+{
+	ENTITY_ID id;
+};
+
+struct ActivityData
+{
+	ENTITY_ID id;
 };

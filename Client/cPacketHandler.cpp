@@ -5,7 +5,7 @@ void handlePacket(packetData& packet, World& world)
 	packet.buffer.clear();
 
 	StarterData starterData = packet.read<StarterData>();
-	for (int i = 0; i < starterData.headerCount; i++)
+	for (u32 i = 0; i < starterData.headerCount; i++)
 	{
 		handleHeader(packet, world);
 	}
@@ -14,7 +14,8 @@ void handlePacket(packetData& packet, World& world)
 void handleHeader(packetData& packet, World& world)
 {
 	HeaderData headerData = packet.read<HeaderData>();
-	for (int i = 0; i < headerData.count; i++)
+	
+	for (u32 i = 0; i < headerData.count; i++)
 	{
 		switch (headerData.type)
 		{
@@ -31,7 +32,7 @@ void handleEntities(packetData& packet, World& world)
 {
 	EntityData entData = packet.read<EntityData>();
 
-	for (i32 i = 0; i < entData.count; i++)
+	for (u32 i = 0; i < entData.count; i++)
 	{
 		EntityID entity = packet.read<EntityID>();
 		switch (entity.type)

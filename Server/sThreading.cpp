@@ -1,7 +1,5 @@
 #include "sThreading.h"
 
-#include <iostream>
-
 void packetThread(NetServer* net, DynamicArray<packetData>* queue)
 {
 	while (true)

@@ -5,8 +5,6 @@ NetServer::~NetServer()
 	CleanUp();
 }
 
-
-
 bool NetServer::Begin(u_short port)
 {
 	// Setup Listener Socket

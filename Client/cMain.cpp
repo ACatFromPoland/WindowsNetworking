@@ -7,7 +7,7 @@
 #include "cPlayer.h"
 #include "cRocket.h"
 
-static short localPlayerID = -1;
+static ENTITY_ID localPlayerID = 0;
 
 int main()
 {
@@ -33,8 +33,9 @@ int main()
 
 		StarterData starter = toRecv.read<StarterData>();
 		HeaderData header = toRecv.read<HeaderData>();
-		
-		localPlayerID = toRecv.read<i32>();
+		InitData init = toRecv.read<InitData>();
+
+		localPlayerID = init.id;
 	}
 
 	// Connection Established, Start Game
@@ -90,17 +91,40 @@ int main()
 		{
 			if (!entity->isPlayer())
 				continue;
-
 			Player* p = (Player*)entity;
-			circle.setPosition(sf::Vector2f(p->position.value.x, p->position.value.y));
+
+			// Draw body
+			circle.setPosition(sf::Vector2f(p->position.value.x - 15.0f, p->position.value.y - 15.0f));
 			if (p->isBot)
 				circle.setFillColor(sf::Color(78, 109, 123));
 			else
 				circle.setFillColor(playerColors[p->classType]);
 			circle.setRadius(15.0f);
 			window.draw(circle);
-		}
 
+			// Hands
+			Vector2 looking = (Vector2(p->mousePosition.value.x, p->mousePosition.value.y) - p->position).normalized();
+			circle.setFillColor((playerColors[(sf::Mouse::isButtonPressed(sf::Mouse::Left) ? (p->id == localPlayerID ? 5 : 1) : 1)]));
+			circle.setRadius(4.0f);
+
+			Vector2 handPos = (p->position - Vector2(4.0f, 4.0f));
+			handPos += (looking * (15.0f + 4.0f));
+
+			circle.setPosition(sf::Vector2f(handPos.x, handPos.y));
+
+			window.draw(circle);
+
+			// Health Bar
+			sf::RectangleShape healthBar;
+			healthBar.setPosition(sf::Vector2f(p->position.value.x - 25.0f, p->position.value.y - 30.0f));
+			healthBar.setSize(sf::Vector2f(p->health / 2.0f, 4.f));
+			healthBar.setFillColor(sf::Color::Green);
+			window.draw(healthBar);
+
+		}
+		Player* localPlayer = world.entityHandler.getEntity<Player>(localPlayerID);
+
+		
 		window.display();
 
 		// Get inputs for next frame
@@ -113,7 +137,8 @@ int main()
 		toSend.write<HeaderData>({ HeaderTypes::HEADER_GENERIC, 1 });
 		starter.headerCount++;
 
-		toSend.write<i32>(localPlayerID);
+		toSend.write<ActivityData>({ localPlayerID });
+		starter.headerCount++;
 
 		if (focused)
 		{

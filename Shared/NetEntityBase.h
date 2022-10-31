@@ -6,10 +6,10 @@
 class NetEntityBase
 {
 public:
-	static u32 ID;
+	static ENTITY_ID ID;
 
 	bool remove : 1;
-	u32 id : 31;
+	ENTITY_ID id : 15;
 	EntityTypes type;
 
 	virtual void update() = 0;

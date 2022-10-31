@@ -17,7 +17,7 @@ public:
 	}
 
 	template<class T>
-	T* createEntity(u32 id)
+	T* createEntity(ENTITY_ID id)
 	{
 		T* entity = new T();
 		entities.pushBack(entity);
@@ -30,7 +30,7 @@ public:
 		return entity;
 	}
 
-	void deleteEntity(u32 id)
+	void deleteEntity(ENTITY_ID id)
 	{
 		for (Entity* ent : entities)
 			if (ent->id == id)
@@ -38,7 +38,7 @@ public:
 	}
 
 	template<class T>
-	T* getEntity(u32 id)
+	T* getEntity(ENTITY_ID id)
 	{
 		for (Entity* ent : entities)
 			if (ent->id == id)
