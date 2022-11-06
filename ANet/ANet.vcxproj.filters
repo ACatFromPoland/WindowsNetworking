@@ -13,24 +13,27 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\Net">
-      <UniqueIdentifier>{699ef867-36e6-4e25-9960-b542a166afda}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\Net">
-      <UniqueIdentifier>{30c61ccc-8f48-45a8-8b97-1ccf3e46d8c6}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="cMain.cpp">
+    <ClInclude Include="NetBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Server.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Client.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="NetBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cThreading.cpp">
-      <Filter>Source Files\Net</Filter>
+    <ClCompile Include="Server.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="cThreading.h">
-      <Filter>Header Files\Net</Filter>
-    </ClInclude>
+    <ClCompile Include="Client.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
