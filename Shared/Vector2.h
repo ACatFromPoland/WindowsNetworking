@@ -13,9 +13,9 @@ public:
 		y = 0.0f;
 	}
 
-	Vector2(float x_, float y_) {
-		x = x_;
-		y = y_;
+	Vector2(float x, float y) {
+		this->x = x;
+		this->y = y;
 	}
 
 	Vector2 operator+(const Vector2& given) const {
@@ -58,7 +58,7 @@ public:
 
 	Vector2 directionTo(Vector2& given)
 	{
-		Vector2 direction = (*this) - given;
+		Vector2 direction = given - (*this);
 		direction.normalize();
 		return Vector2(direction.x, direction.y);
 	}

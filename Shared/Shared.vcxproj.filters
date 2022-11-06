@@ -48,19 +48,7 @@
     <ClInclude Include="Vector2.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NetPlayer.h">
-      <Filter>Header Files\Network\NetEntities</Filter>
-    </ClInclude>
-    <ClInclude Include="NetRocket.h">
-      <Filter>Header Files\Network\NetEntities</Filter>
-    </ClInclude>
     <ClInclude Include="NetEntityBase.h">
-      <Filter>Header Files\Network\NetEntities</Filter>
-    </ClInclude>
-    <ClInclude Include="NetActor.h">
-      <Filter>Header Files\Network\NetEntities</Filter>
-    </ClInclude>
-    <ClInclude Include="NetEntity.h">
       <Filter>Header Files\Network\NetEntities</Filter>
     </ClInclude>
   </ItemGroup>
@@ -74,7 +62,7 @@
     <ClCompile Include="NetObject.cpp">
       <Filter>Source Files\Network</Filter>
     </ClCompile>
-    <ClCompile Include="NetEntity.cpp">
+    <ClCompile Include="NetEntityBase.cpp">
       <Filter>Source Files\Network</Filter>
     </ClCompile>
   </ItemGroup>

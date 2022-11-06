@@ -3,7 +3,7 @@
 
 #define ENTITY_ID u16
 
-enum HeaderTypes : u8
+enum class HeaderTypes : u8
 {
 	HEADER_GENERIC = 1,
 	HEADER_CONNECT,
@@ -12,7 +12,7 @@ enum HeaderTypes : u8
 	headerLastType
 };
 
-enum EntityTypes : u8
+enum class EntityTypes : u8
 {
 	ENT_EMPTY = 1,
 	ENT_BOT,

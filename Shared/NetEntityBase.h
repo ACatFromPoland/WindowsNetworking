@@ -1,16 +1,13 @@
 #pragma once
-#include "NetVar.h"
-#include "NetShared.h"
+#include "NetObject.h"
 #include "NetPackets.h"
 
-class NetEntityBase
+class NetEntityBase : public NetObject
 {
 public:
-	static ENTITY_ID ID;
+	static ENTITY_ID ID_ITERATOR;
 
 	bool remove : 1;
 	ENTITY_ID id : 15;
 	EntityTypes type;
-
-	virtual void update() = 0;
 };

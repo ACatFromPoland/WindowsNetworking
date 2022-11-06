@@ -6,6 +6,8 @@
 #include "Shared/NetVar.h"
 #include "Shared/NetClock.h"
 
+#include "Shared/NetEntityBase.h"
+
 #include "sThreading.h"
 
 #include <cmath>
@@ -23,6 +25,8 @@ void setConsoleMode()
 		printf("Can't Set Console Mode!\n");
 }
 
+
+
 struct colliderCircle
 {
 	Vector2 center;
@@ -36,62 +40,27 @@ struct colliderRay
 	float t;
 };
 
-class NetEntityBase : public NetObject
+struct colliderAABB
 {
-public:
-	static ENTITY_ID ID_ITERATOR;
+	Vector2 center;
+	Vector2 size;
 
-	bool remove : 1;
-	ENTITY_ID id : 15;
-	EntityTypes type;
+	Vector2 getMin()
+	{
+		Vector2 p1 = center + size;
+		Vector2 p2 = center - size;
+		return Vector2(fminf(p1.x, p2.x),
+					   fminf(p1.y, p2.y));
+	}
+
+	Vector2 getMax()
+	{
+		Vector2 p1 = center + size;
+		Vector2 p2 = center - size;
+		return Vector2(fmaxf(p1.x, p2.x),
+					   fmaxf(p1.y, p2.y));
+	}
 };
-ENTITY_ID NetEntityBase::ID_ITERATOR = 0;
-
-class Entity;
-struct gameState
-{
-	double lastTick;
-	double deltaTime;
-	NetClock gameTime;
-	DynamicArray<Entity*> entities;
-};
-class Entity : public NetEntityBase
-{
-public:
-	bool toDelete = false;
-	NetVector2(position);
-	NetVector2(velocity);
-	
-	virtual void update(gameState& state) = 0;
-};
-
-class Player : public Entity
-{
-public:
-	NetByte(classType);
-	colliderCircle circle;
-	
-	bitInt inputs;
-	NetVector2(mousePosition);
-	NetFloat(health);
-
-	double timeSinceLastShot;
-
-	Player();
-
-	virtual void update(gameState& state);
-};
-
-Player::Player()
-{
-	type = EntityTypes::ENT_PLAYER;
-	remove = false;
-	health = 100.f;
-	timeSinceLastShot = 0.0f;
-
-	circle.radius = 15.0f;
-	circle.center = position;
-}
 
 bool rayCast(colliderCircle& circle, colliderRay& ray)
 {
@@ -122,6 +91,152 @@ bool rayCast(colliderCircle& circle, colliderRay& ray)
 	}
 }
 
+bool rayCast(colliderAABB& box, colliderRay& ray)
+{
+	Vector2 min = box.getMin();
+	Vector2 max = box.getMax();
+
+	float t1 = (min.x - ray.origin.x) / ray.direction.x;
+	float t2 = (max.x - ray.origin.x) / ray.direction.x;
+	float t3 = (min.y - ray.origin.y) / ray.direction.y;
+	float t4 = (max.y - ray.origin.y) / ray.direction.y;
+
+	float tmin = fmaxf(
+		fminf(t1, t2),
+		fminf(t3, t4)
+	);
+
+	float tmax = fminf(
+		fmaxf(t1, t2),
+		fmaxf(t3, t4)
+	);
+
+	if (tmax < 0) {
+		ray.t = -1.0f;
+		return false;
+	}
+
+	if (tmin > tmax) {
+		ray.t = -1.0f;
+		return false;
+	}
+
+	if (tmin < 0.0f) {
+		ray.t = tmax;
+		return true;
+	}
+
+	ray.t = tmin;
+	return true;
+}
+
+
+class Entity;
+struct gameState
+{
+	double lastTick;
+	double deltaTime;
+	NetClock gameTime;
+	DynamicArray<Entity*> entities;
+};
+class Entity : public NetEntityBase
+{
+public:
+	bool toDelete = false;
+	NetVector2(position);
+	NetVector2(velocity);
+
+	colliderAABB boundingBox;
+	
+	Entity();
+	virtual void update(gameState& state) = 0;
+};
+Entity::Entity()
+{
+	type = EntityTypes::ENT_EMPTY;
+	remove = false;
+}
+
+template <class Class>
+Class* createEntity(gameState& state)
+{
+	Class* entity = new Class();
+	entity->id = Entity::ID_ITERATOR++;
+
+	state.entities.pushBack((Entity*)entity);
+	return entity;
+}
+
+Entity* getEntity(gameState& state, ENTITY_ID id)
+{
+	for (Entity* entity : state.entities)
+	{
+		if (entity->id == id)
+			return entity;
+	}
+
+	return nullptr;
+}
+
+class Rocket : public Entity
+{
+public:
+	Vector2 explodeAt;
+	Rocket();
+	virtual void update(gameState& state);
+};
+
+Rocket::Rocket()
+{
+	type = EntityTypes::ENT_ROCKET;
+}
+
+void Rocket::update(gameState& state)
+{
+	bool outOfBounds = position.value.x > 1000.0f ||
+		position.value.x < 0.0f ||
+		position.value.y > 1000.0f ||
+		position.value.y < 0.0f;
+
+	if (outOfBounds)
+		toDelete = true;
+
+	if (position.value.dist(explodeAt) < 1.0f)
+		toDelete = true; // EXPLODE!
+
+	position += velocity.value * (float)state.deltaTime;
+	boundingBox.center = position; // Fix
+}
+
+
+class Player : public Entity
+{
+public:
+	NetByte(classType);
+	NetVector2(mousePosition);
+	NetFloat(health);
+
+	colliderCircle circle;
+	bitInt inputs;
+	double timeSinceLastShot;
+
+	Player();
+	virtual void update(gameState& state);
+};
+
+Player::Player()
+{
+	type = EntityTypes::ENT_PLAYER;
+	health = 100.f;
+	timeSinceLastShot = 0.0f;
+
+	circle.radius = 15.0f;
+	circle.center = position;
+
+	boundingBox.center = Vector2(circle.center.x, circle.center.y);
+	boundingBox.size = Vector2(circle.radius, circle.radius);
+}
+
 void Player::update(gameState& state)
 {
 	if (health < 0.0f)
@@ -130,39 +245,54 @@ void Player::update(gameState& state)
 		health = 100.0f;
 	}
 		
-	if (inputs.get(IN_FORWARD)) position.value.y -= (float)(75.0 * state.deltaTime);
-	if (inputs.get(IN_LEFT)) position.value.x -= (float)(75.0 * state.deltaTime);
-	if (inputs.get(IN_BACK)) position.value.y += (float)(75.0 * state.deltaTime);
-	if (inputs.get(IN_RIGHT)) position.value.x += (float)(75.0 * state.deltaTime);
+	if (inputs.get(IN_FORWARD)) position.value.y -= (float)(90.0 * state.deltaTime);
+	if (inputs.get(IN_LEFT)) position.value.x -= (float)(90.0 * state.deltaTime);
+	if (inputs.get(IN_BACK)) position.value.y += (float)(90.0 * state.deltaTime);
+	if (inputs.get(IN_RIGHT)) position.value.x += (float)(90.0 * state.deltaTime);
 
 	circle.center = position;
+	boundingBox.center = Vector2(circle.center.x, circle.center.y);
 
 	if (inputs.get(IN_MOUSE1))
 	{
+#if 0
 		if (state.gameTime.timeSince(timeSinceLastShot) > 0.1)
 		{
 			colliderRay shot;
 			shot.origin = position;
-			shot.direction = (position - mousePosition).normalized();
+			
+			shot.direction = position.value.directionTo(mousePosition.value);
 
 			for (Entity* ent : state.entities)
 			{
-				if (ent->type != EntityTypes::ENT_PLAYER)
-					continue;
 				if (ent == this)
 					continue;
+			
+				if (rayCast(ent->boundingBox, shot))
+				{
+					if (ent->type != EntityTypes::ENT_PLAYER)
+						break;
 
-				Player* player = (Player*)ent;
-				colliderCircle& circle = player->circle;
+					Player* player = (Player*)ent;
+					colliderCircle& circle = player->circle;
 
-				if (rayCast(circle, shot))
-					player->health -= 12.0f;
+					if (rayCast(circle, shot))
+						player->health -= 12.0f;
+				}
 			}
+			timeSinceLastShot = state.gameTime.getTick();
+		}
+#endif
+		if (state.gameTime.timeSince(timeSinceLastShot) > 1.0)
+		{
+			Rocket* rocket = createEntity<Rocket>(state);
+			rocket->position = position;
+			rocket->velocity = position.value.directionTo(mousePosition.value) * 300.0f;
+			rocket->explodeAt = mousePosition.value;
 
 			timeSinceLastShot = state.gameTime.getTick();
 		}
 	}
-
 }
 
 class World
@@ -172,11 +302,12 @@ public:
 
 	World();
 	void updateEntity(Entity* actor);
+	
 };
 
 World::World()
 {
-	state.gameTime = NetClock(60.f);
+	state.gameTime = NetClock(60.0);
 	state.lastTick = state.gameTime.getTick();
 }
 
@@ -209,7 +340,7 @@ int main()
 	DynamicArray<client> clients;
 
 	World world;
-	
+
 	while (true)
 	{
 		net.threadLock.lock();
@@ -238,25 +369,24 @@ int main()
 					{
 						ConnectData connectData = packet.read<ConnectData>();
 						
+						// Create Player
+						Player* player = createEntity<Player>(world.state);
+						player->classType = connectData.classType;
+						player->position = Vector2(50.0f, 50.0f);
+						player->velocity = Vector2(0.0f, 0.0f);
+						
+						// Save connection
 						client& c = clients.pushBack();
+						c.id = player->id;
 						c.lastPacketTick = world.state.gameTime.getTick();
 						c.address = packet.address;
 
-						Player* player = new Player();
-						player->classType = connectData.classType;
-
-						c.id = player->id = Entity::ID_ITERATOR++;
-
-						world.state.entities.pushBack(player);
-
-						player->position = Vector2(400.0f, 400.0f);
-						player->velocity = Vector2(0.0f, 0.0f);
-
-						//
+						// Send init
 						NetBuffer toSend;
 						u32& starterCount = toSend.write<StarterData>({ 0, 0 }).headerCount;
 						
 						u32& headerCount = toSend.write<HeaderData>({ HeaderTypes::HEADER_CONNECT, 0 }).count;
+						
 						starterCount++;
 
 						toSend.write<InitData>({c.id});
@@ -267,19 +397,14 @@ int main()
 					else if (headerData.type == HeaderTypes::HEADER_MOVE)
 					{
 						MoveData data = packet.read<MoveData>();
-						
-						for (Entity* entity : world.state.entities)
-						{
-							if (entity->id == data.id)
-							{
-								//TODO: check if entity is player
-								if (entity->type != EntityTypes::ENT_PLAYER)
-									break;
 
-								Player* player = (Player*)entity;
-								player->inputs = data.inputs;
-								player->mousePosition = data.mousePosition;
-							}
+						Entity* entity = getEntity(world.state, data.id);
+
+						if (entity->type == EntityTypes::ENT_PLAYER)
+						{
+							Player* player = (Player*)entity;
+							player->inputs = data.inputs;
+							player->mousePosition = data.mousePosition;
 						}
 					}
 				}
@@ -295,11 +420,9 @@ int main()
 
 			if (world.state.gameTime.timeSince(c.lastPacketTick) > 5.0f)
 			{
-				for (Entity* entity : world.state.entities)
-				{
-					if (entity->id == c.id)
-						entity->toDelete = true;
-				}
+				Entity* entity = getEntity(world.state, c.id);
+				entity->toDelete = true;
+				clients.fastRemove(i);
 			}
 		}
 
@@ -310,15 +433,18 @@ int main()
 		// Run frame on game state
 		for (Entity* entity : world.state.entities)
 		{
-			/*if (entity->toDelete)
+			if (entity->toDelete)
 			{
 				entity->remove = true;
 				continue;
-			}*/
+			}
 			world.updateEntity(entity);
 		}
 
 		// Update clients on game state
+		//if (!world.state.gameTime.Tick())
+			//continue;
+		
 		NetBuffer toSend;
 		u32& starterCount = toSend.write<StarterData>({0, 0}).headerCount;
 		
@@ -338,7 +464,7 @@ int main()
 			net.SendTo(toSend.buffer, NetBuffer::size, c.address);
 		}
 
-		/*for (int i = (int)(clients.count - 1); i >= 0; i--)
+		for (int i = (int)(world.state.entities.count - 1); i >= 0; i--)
 		{
 			Entity* entity = world.state.entities[i];
 			if (entity->remove)
@@ -346,7 +472,7 @@ int main()
 				delete(entity);
 				world.state.entities.fastRemove(i);
 			}
-		}*/
+		}
 	}
 	return 0;
 }
