@@ -178,6 +178,21 @@ Entity* getEntity(gameState& state, ENTITY_ID id)
 	return nullptr;
 }
 
+class Player : public Entity
+{
+public:
+	NetByte(classType);
+	NetVector2(mousePosition);
+	NetFloat(health);
+
+	colliderCircle circle;
+	bitInt inputs;
+	double timeSinceLastShot;
+
+	Player();
+	virtual void update(gameState& state);
+};
+
 class Rocket : public Entity
 {
 public:
@@ -204,25 +219,28 @@ void Rocket::update(gameState& state)
 	if (position.value.dist(explodeAt) < 1.0f)
 		toDelete = true; // EXPLODE!
 
+	if (toDelete)
+	{
+		for (Entity* entity : state.entities)
+		{
+			if (entity->type == EntityTypes::ENT_PLAYER)
+			{
+				Player* player = (Player*)entity;
+
+				float dist = (float)player->position.value.dist(position.value);
+
+				if (dist < 40.0f)
+				{
+					player->health -= ((dist - 40.0f) * (dist - 40.0f)) * 0.05f;
+				}
+			}
+		}
+	}
+
 	position += velocity.value * (float)state.deltaTime;
 	boundingBox.center = position; // Fix
 }
 
-
-class Player : public Entity
-{
-public:
-	NetByte(classType);
-	NetVector2(mousePosition);
-	NetFloat(health);
-
-	colliderCircle circle;
-	bitInt inputs;
-	double timeSinceLastShot;
-
-	Player();
-	virtual void update(gameState& state);
-};
 
 Player::Player()
 {
@@ -255,42 +273,46 @@ void Player::update(gameState& state)
 
 	if (inputs.get(IN_MOUSE1))
 	{
-#if 0
-		if (state.gameTime.timeSince(timeSinceLastShot) > 0.1)
+		if (classType == 0)
 		{
-			colliderRay shot;
-			shot.origin = position;
-			
-			shot.direction = position.value.directionTo(mousePosition.value);
-
-			for (Entity* ent : state.entities)
+			if (state.gameTime.timeSince(timeSinceLastShot) > 0.1)
 			{
-				if (ent == this)
-					continue;
-			
-				if (rayCast(ent->boundingBox, shot))
+				colliderRay shot;
+				shot.origin = position;
+
+				shot.direction = position.value.directionTo(mousePosition.value);
+
+				for (Entity* ent : state.entities)
 				{
-					if (ent->type != EntityTypes::ENT_PLAYER)
-						break;
+					if (ent == this)
+						continue;
 
-					Player* player = (Player*)ent;
-					colliderCircle& circle = player->circle;
+					if (rayCast(ent->boundingBox, shot))
+					{
+						if (ent->type != EntityTypes::ENT_PLAYER)
+							break;
 
-					if (rayCast(circle, shot))
-						player->health -= 12.0f;
+						Player* player = (Player*)ent;
+						colliderCircle& circle = player->circle;
+
+						if (rayCast(circle, shot))
+							player->health -= 12.0f;
+					}
 				}
+				timeSinceLastShot = state.gameTime.getTick();
 			}
-			timeSinceLastShot = state.gameTime.getTick();
 		}
-#endif
-		if (state.gameTime.timeSince(timeSinceLastShot) > 1.0)
+		else if (classType == 1)
 		{
-			Rocket* rocket = createEntity<Rocket>(state);
-			rocket->position = position;
-			rocket->velocity = position.value.directionTo(mousePosition.value) * 300.0f;
-			rocket->explodeAt = mousePosition.value;
+			if (state.gameTime.timeSince(timeSinceLastShot) > 1.0)
+			{
+				Rocket* rocket = createEntity<Rocket>(state);
+				rocket->position = position;
+				rocket->velocity = position.value.directionTo(mousePosition.value) * 300.0f;
+				rocket->explodeAt = mousePosition.value;
 
-			timeSinceLastShot = state.gameTime.getTick();
+				timeSinceLastShot = state.gameTime.getTick();
+			}
 		}
 	}
 }

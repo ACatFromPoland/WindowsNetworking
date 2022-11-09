@@ -11,6 +11,4 @@ public:
 
 	virtual void writeToBuffer(NetBuffer& buffer);
 	virtual void readFromBuffer(NetBuffer& buffer);
-	//NetVarBase* getNetVar(ptrdiff_t offset);
-	//int getNetVarSize();
 };

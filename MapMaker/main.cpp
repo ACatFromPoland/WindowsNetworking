@@ -181,7 +181,7 @@ int main()
                     break;
                 case ShapeType::RECTNAGLE:
                     brush.temporary = new Rectangle();
-                    ((Rectangle*)&brush.temporary)->rType = brush.rType;
+                    ((Rectangle*)brush.temporary)->rType = brush.rType;
                     break;
                 }
                 
